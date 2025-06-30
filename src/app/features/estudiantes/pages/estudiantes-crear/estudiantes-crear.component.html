@@ -14,6 +14,7 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Nombre</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
           <input matInput formControlName="nombre" placeholder="Ingrese el nombre">
           <mat-error *ngIf="estudianteForm.get('nombre')?.invalid && estudianteForm.get('nombre')?.touched">
             {{ getErrorMessage('nombre') }}
@@ -22,6 +23,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Apellido</mat-label>
+          <mat-icon matPrefix>person_outline</mat-icon>
           <input matInput formControlName="apellido" placeholder="Ingrese el apellido">
           <mat-error *ngIf="estudianteForm.get('apellido')?.invalid && estudianteForm.get('apellido')?.touched">
             {{ getErrorMessage('apellido') }}
@@ -31,6 +33,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Email</mat-label>
+        <mat-icon matPrefix>email</mat-icon>
         <input matInput type="email" formControlName="email" placeholder="ejemplo@correo.com">
         <mat-error *ngIf="estudianteForm.get('email')?.invalid && estudianteForm.get('email')?.touched">
           {{ getErrorMessage('email') }}
@@ -40,6 +43,7 @@
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Teléfono</mat-label>
+          <mat-icon matPrefix>phone</mat-icon>
           <input matInput formControlName="telefono" placeholder="Ingrese el teléfono">
           <mat-error *ngIf="estudianteForm.get('telefono')?.invalid && estudianteForm.get('telefono')?.touched">
             {{ getErrorMessage('telefono') }}
@@ -48,6 +52,7 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Documento</mat-label>
+          <mat-icon matPrefix>badge</mat-icon>
           <input matInput formControlName="documento" placeholder="Ingrese el documento">
           <mat-error *ngIf="estudianteForm.get('documento')?.invalid && estudianteForm.get('documento')?.touched">
             {{ getErrorMessage('documento') }}
@@ -57,6 +62,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Fecha de Nacimiento</mat-label>
+        <mat-icon matPrefix>calendar_today</mat-icon>
         <input matInput [matDatepicker]="picker" formControlName="fechaNacimiento" placeholder="Seleccione la fecha">
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>

@@ -12,6 +12,25 @@
       flex: 1;
     }
   }
+  
+  // Estilos para iconos en campos de formulario
+  mat-form-field {
+    .mat-icon[matPrefix] {
+      color: #666;
+      margin-right: 8px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+    
+    &.mat-focused .mat-icon[matPrefix] {
+      color: #1976d2;
+    }
+    
+    &.mat-form-field-invalid .mat-icon[matPrefix] {
+      color: #f44336;
+    }
+  }
 }
 
 // Responsive

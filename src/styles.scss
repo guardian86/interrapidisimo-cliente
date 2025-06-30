@@ -1,5 +1,186 @@
 /* You can add global styles to this file, and also import other style files */
 
+// Configurar fuentes
+* {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Estilos globales para iconos */
+.mat-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+/* Estilos para toolbar/navegación */
+.mat-toolbar {
+  .spacer {
+    flex: 1 1 auto;
+  }
+  
+  .mat-button {
+    margin: 0 4px;
+    
+    .mat-icon {
+      margin-right: 4px;
+    }
+  }
+  
+  &.mat-primary {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+}
+
+/* Estilos para contenedor principal */
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Estilos para cards */
+.mat-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+  .mat-card-header {
+    .mat-card-title {
+      display: flex;
+      align-items: center;
+      
+      .mat-icon {
+        margin-right: 12px;
+        color: #1976d2;
+      }
+    }
+  }
+}
+
+/* Estilos para botones con iconos */
+.mat-button, .mat-raised-button, .mat-fab, .mat-mini-fab {
+  .mat-icon {
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  
+  &.icon-only {
+    .mat-icon {
+      margin-right: 0;
+    }
+  }
+}
+
+/* Estilos para acciones en tablas */
+.actions-cell {
+  white-space: nowrap;
+  
+  .mat-icon-button {
+    margin: 0 2px;
+  }
+}
+
+/* Estilos para chips */
+.mat-chip {
+  .mat-icon {
+    margin-right: 4px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Estilos para estados y warnings */
+.warn-text {
+  color: #f44336 !important;
+}
+
+.success-text {
+  color: #4caf50 !important;
+}
+
+.info-text {
+  color: #2196f3 !important;
+}
+
+/* Centrado de contenido */
+.mat-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  
+  .mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: #757575;
+  }
+  
+  h3 {
+    margin: 16px 0 8px 0;
+    color: #424242;
+  }
+  
+  p {
+    color: #757575;
+    margin-bottom: 24px;
+  }
+}
+
+/* Loading states */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  
+  .mat-spinner {
+    margin-bottom: 16px;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .mat-toolbar {
+    .mat-button {
+      .mat-icon {
+        margin-right: 0;
+      }
+      
+      span:not(.mat-icon) {
+        display: none;
+      }
+    }
+  }
+  
+  .actions-cell {
+    .mat-icon-button {
+      margin: 0 1px;
+    }
+  }
+}
+
+/* Animaciones suaves */
+.mat-card, .mat-button, .mat-raised-button, .mat-icon-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.mat-icon-button:hover {
+  background-color: rgba(0,0,0,0.04);
+}
+
 /* Snackbar custom styles */
 .success-snackbar {
   background-color: #4caf50 !important;

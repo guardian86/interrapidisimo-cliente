@@ -66,27 +66,33 @@
 
         <ng-container matColumnDef="acciones">
           <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
-          <mat-cell *matCellDef="let estudiante">
-            <button mat-icon-button [matMenuTriggerFor]="menu" color="primary">
+          <mat-cell *matCellDef="let estudiante" class="actions-cell">
+            <!-- Acción principal: Ver/Editar -->
+            <button mat-icon-button [routerLink]="['/estudiantes', estudiante.id, 'editar']" 
+                    matTooltip="Editar estudiante" color="primary">
+              <mat-icon>edit</mat-icon>
+            </button>
+            
+            <!-- Acción secundaria: Inscribir -->
+            <button mat-icon-button [routerLink]="['/estudiantes', estudiante.id, 'inscribir']" 
+                    matTooltip="Inscribir a materias" color="accent">
+              <mat-icon>school</mat-icon>
+            </button>
+            
+            <!-- Acción terciaria: Ver compañeros -->
+            <button mat-icon-button [routerLink]="['/estudiantes', estudiante.id, 'companeros']" 
+                    matTooltip="Ver compañeros de clase">
+              <mat-icon>groups</mat-icon>
+            </button>
+            
+            <!-- Menú de más opciones -->
+            <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Más opciones">
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-              <button mat-menu-item [routerLink]="['/estudiantes', estudiante.id, 'editar']">
-                <mat-icon>edit</mat-icon>
-                Editar
-              </button>
-              <button mat-menu-item [routerLink]="['/estudiantes', estudiante.id, 'inscribir']">
-                <mat-icon>assignment</mat-icon>
-                Inscribir Materias
-              </button>
-              <button mat-menu-item [routerLink]="['/estudiantes', estudiante.id, 'companeros']">
-                <mat-icon>group</mat-icon>
-                Ver Compañeros
-              </button>
-              <mat-divider></mat-divider>
               <button mat-menu-item (click)="deleteEstudiante(estudiante.id)" class="warn-text">
-                <mat-icon>delete</mat-icon>
-                Eliminar
+                <mat-icon color="warn">delete</mat-icon>
+                <span>Eliminar</span>
               </button>
             </mat-menu>
           </mat-cell>

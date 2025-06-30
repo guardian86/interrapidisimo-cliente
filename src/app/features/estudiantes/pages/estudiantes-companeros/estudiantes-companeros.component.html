@@ -1,6 +1,6 @@
 <div class="classmates-container">
   <div class="header">
-    <button mat-icon-button routerLink="/students" aria-label="Volver">
+    <button mat-icon-button routerLink="/estudiantes" aria-label="Volver" matTooltip="Volver a estudiantes">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <div class="header-content">
@@ -9,6 +9,7 @@
         Compañeros de Clase
       </h1>
       <p *ngIf="estudiante()" class="subtitle">
+        <mat-icon>person</mat-icon>
         {{ estudiante()?.nombre }} {{ estudiante()?.apellido }}
       </p>
     </div>
@@ -46,7 +47,11 @@
     <mat-tab-group class="tabs-container">
       
       <!-- Tab 1: Por Materia -->
-      <mat-tab label="Compañeros por Materia">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>class</mat-icon>
+          Compañeros por Materia
+        </ng-template>
         <div class="tab-content">
           <div class="expansion-panels" *ngIf="resumenInscripcion()?.companeros && resumenInscripcion()!.companeros.length > 0">
             <mat-expansion-panel *ngFor="let materiaInfo of resumenInscripcion()!.companeros" class="materia-panel">
@@ -91,7 +96,11 @@
       </mat-tab>
 
       <!-- Tab 2: Todos los Compañeros -->
-      <mat-tab label="Todos los Compañeros">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>people_alt</mat-icon>
+          Todos los Compañeros
+        </ng-template>
         <div class="tab-content">
           <mat-card *ngIf="getUniqueCompaneros().length > 0" class="all-classmates-card">
             <mat-card-header>

@@ -19,6 +19,43 @@
   color: #f44336;
 }
 
+// Estilos para acciones en la tabla
+.actions-cell {
+  white-space: nowrap;
+  text-align: center;
+  
+  .mat-icon-button {
+    margin: 0 2px;
+    
+    &.mat-primary {
+      color: #1976d2;
+    }
+    
+    &.mat-accent {
+      color: #ff4081;
+    }
+    
+    .mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// Estilos para chips de estado
+.mat-chip {
+  &.mat-primary {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  &.mat-warn {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+}
+
 // Responsive para acciones
 @media (max-width: 768px) {
   mat-card-actions {
@@ -27,6 +64,18 @@
     
     button {
       margin: 4px 0;
+    }
+  }
+  
+  .actions-cell {
+    .mat-icon-button {
+      margin: 0 1px;
+      
+      .mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
     }
   }
 }

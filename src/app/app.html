@@ -2,10 +2,33 @@
   <mat-icon>school</mat-icon>
   <span>{{ title }}</span>
   <span class="spacer"></span>
+  
+  <!-- Navegación principal -->
   <button mat-button routerLink="/estudiantes" routerLinkActive="active">
     <mat-icon>people</mat-icon>
-    Estudiantes
+    <span>Estudiantes</span>
   </button>
+  
+  <button mat-button routerLink="/estudiantes/inscripcion" routerLinkActive="active">
+    <mat-icon>assignment</mat-icon>
+    <span>Inscripciones</span>
+  </button>
+  
+  <!-- Menú de acciones rápidas -->
+  <button mat-icon-button [matMenuTriggerFor]="quickMenu" matTooltip="Acciones rápidas">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #quickMenu="matMenu">
+    <button mat-menu-item routerLink="/estudiantes/crear">
+      <mat-icon>person_add</mat-icon>
+      <span>Nuevo Estudiante</span>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="refreshData()">
+      <mat-icon>refresh</mat-icon>
+      <span>Actualizar Datos</span>
+    </button>
+  </mat-menu>
 </mat-toolbar>
 
 <div class="container">

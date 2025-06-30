@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { EstudianteListDto } from '../../../../core/models/estudiante.model';
 
@@ -26,7 +27,8 @@ import { EstudianteListDto } from '../../../../core/models/estudiante.model';
     MatProgressSpinnerModule,
     MatMenuModule,
     MatDividerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTooltipModule
   ],
   templateUrl: './estudiantes-lista.component.html',
   styleUrls: ['./estudiantes-lista.component.scss']

@@ -6,6 +6,9 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-layout',
@@ -17,7 +20,10 @@ import { MatButtonModule } from '@angular/material/button';
     MatSidenavModule,
     MatListModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatMenuModule,
+    MatDividerModule,
+    MatTooltipModule
   ],
   template: `
     <mat-sidenav-container class="sidenav-container">
@@ -28,30 +34,30 @@ import { MatButtonModule } from '@angular/material/button';
         </mat-toolbar>
         
         <mat-nav-list>
-          <h3 mat-subheader>Gestión</h3>
+          <h3 mat-subheader>Gestión de Estudiantes</h3>
           <a mat-list-item routerLink="/estudiantes" routerLinkActive="active">
             <mat-icon matListItemIcon>people</mat-icon>
-            <span matListItemTitle>Estudiantes</span>
+            <span matListItemTitle>Lista de Estudiantes</span>
           </a>
-          <a mat-list-item routerLink="/materias" routerLinkActive="active">
-            <mat-icon matListItemIcon>book</mat-icon>
-            <span matListItemTitle>Materias</span>
-          </a>
-          <a mat-list-item routerLink="/profesores" routerLinkActive="active">
-            <mat-icon matListItemIcon>person</mat-icon>
-            <span matListItemTitle>Profesores</span>
+          <a mat-list-item routerLink="/estudiantes/crear" routerLinkActive="active">
+            <mat-icon matListItemIcon>person_add</mat-icon>
+            <span matListItemTitle>Nuevo Estudiante</span>
           </a>
           
           <mat-divider></mat-divider>
           
           <h3 mat-subheader>Inscripciones</h3>
-          <a mat-list-item routerLink="/inscripciones" routerLinkActive="active">
+          <a mat-list-item routerLink="/estudiantes/inscripcion" routerLinkActive="active">
             <mat-icon matListItemIcon>assignment</mat-icon>
             <span matListItemTitle>Nueva Inscripción</span>
           </a>
-          <a mat-list-item routerLink="/companeros" routerLinkActive="active">
-            <mat-icon matListItemIcon>group</mat-icon>
-            <span matListItemTitle>Compañeros</span>
+          
+          <mat-divider></mat-divider>
+          
+          <h3 mat-subheader>Configuración</h3>
+          <a mat-list-item (click)="refreshData()" class="action-item">
+            <mat-icon matListItemIcon>refresh</mat-icon>
+            <span matListItemTitle>Actualizar Datos</span>
           </a>
         </mat-nav-list>
       </mat-sidenav>
@@ -105,6 +111,18 @@ import { MatButtonModule } from '@angular/material/button';
       color: #1976d2;
       font-weight: 600;
     }
+    .action-item {
+      cursor: pointer;
+    }
+    
+    .action-item:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
   `]
 })
-export class LayoutComponent {}
+export class LayoutComponent {
+  refreshData() {
+    // Recargar la página actual para actualizar todos los datos
+    window.location.reload();
+  }
+}
