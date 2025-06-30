@@ -1,5 +1,5 @@
 export const APP_CONFIG = {
-  API_URL: 'https://localhost:7130/api', // URL directa al WebAPI con HTTPS
+  API_URL: 'http://localhost:5099/api', // URL directa al WebAPI con HTTP para evitar problemas de certificado
   APP_NAME: 'Sistema de Registro de Estudiantes - InterRapidísimo',
   VERSION: '1.0.0',
   TIMEOUT: 30000,

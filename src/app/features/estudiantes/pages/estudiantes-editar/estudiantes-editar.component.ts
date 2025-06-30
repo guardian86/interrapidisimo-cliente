@@ -53,6 +53,7 @@ export class EstudiantesEditarComponent implements OnInit {
       apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
       telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/), Validators.maxLength(15)]],
+      documento: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]],
       fechaNacimiento: ['', [Validators.required]]
     });
   }
@@ -74,6 +75,7 @@ export class EstudiantesEditarComponent implements OnInit {
           apellido: estudiante.apellido,
           email: estudiante.email,
           telefono: estudiante.telefono,
+          documento: estudiante.documento,
           fechaNacimiento: new Date(estudiante.fechaNacimiento)
         });
         this.loading.set(false);
@@ -95,8 +97,11 @@ export class EstudiantesEditarComponent implements OnInit {
       this.loading.set(true);
       const formValue = this.estudianteForm.value;
       const estudianteData: UpdateEstudianteDto = {
-        id: this.estudianteId,
-        ...formValue,
+        nombre: formValue.nombre,
+        apellido: formValue.apellido,
+        email: formValue.email,
+        telefono: formValue.telefono,
+        documento: formValue.documento,
         fechaNacimiento: new Date(formValue.fechaNacimiento).toISOString()
       };
 
@@ -163,6 +168,7 @@ export class EstudiantesEditarComponent implements OnInit {
       apellido: 'Apellido',
       email: 'Email',
       telefono: 'Teléfono',
+      documento: 'Documento',
       fechaNacimiento: 'Fecha de nacimiento'
     };
     return displayNames[fieldName] || fieldName;
