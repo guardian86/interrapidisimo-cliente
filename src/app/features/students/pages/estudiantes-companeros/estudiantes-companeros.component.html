@@ -1,0 +1,194 @@
+<div class="classmates-container">
+  <div class="header">
+    <button mat-icon-button routerLink="/students" aria-label="Volver">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <h1>
+        <mat-icon>groups</mat-icon>
+        Compañeros de Clase
+      </h1>
+      <p *ngIf="estudiante()" class="subtitle">
+        {{ estudiante()?.nombre }} {{ estudiante()?.apellido }}
+      </p>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando información...</p>
+  </div>
+
+  <div *ngIf="!loading() && resumenInscripcion()">
+    <!-- Resumen general -->
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <div class="summary-stats">
+          <mat-chip-set>
+            <mat-chip color="primary" selected>
+              <mat-icon>book</mat-icon>
+              {{ getTotalMaterias() }} Materias Inscritas
+            </mat-chip>
+            <mat-chip color="accent" selected>
+              <mat-icon>credit_card</mat-icon>
+              {{ resumenInscripcion()?.totalCreditos }} Créditos Totales
+            </mat-chip>
+            <mat-chip color="warn" selected>
+              <mat-icon>group</mat-icon>
+              {{ getTotalCompaneros() }} Conexiones de Clase
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tabs para diferentes vistas -->
+    <mat-tab-group class="tabs-container">
+      
+      <!-- Tab 1: Por Materia -->
+      <mat-tab label="Compañeros por Materia">
+        <div class="tab-content">
+          <div class="expansion-panels" *ngIf="resumenInscripcion()?.companeros && resumenInscripcion()!.companeros.length > 0">
+            <mat-expansion-panel *ngFor="let materiaInfo of resumenInscripcion()!.companeros" class="materia-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>book</mat-icon>
+                  {{ materiaInfo.nombreMateria }}
+                </mat-panel-title>
+                <mat-panel-description>
+                  Prof. {{ materiaInfo.nombreProfesor }} • 
+                  {{ materiaInfo.companeros.length }} compañero(s)
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="panel-content">
+                <div *ngIf="materiaInfo.companeros.length > 0; else noClassmates" class="classmates-list">
+                  <mat-list dense>
+                    <mat-list-item *ngFor="let companero of materiaInfo.companeros">
+                      <mat-icon matListIcon>person</mat-icon>
+                      <div matLine>{{ companero.nombreEstudiante }}</div>
+                      <div matLine class="secondary-text">ID: {{ companero.estudianteId }}</div>
+                    </mat-list-item>
+                  </mat-list>
+                </div>
+                
+                <ng-template #noClassmates>
+                  <div class="no-classmates">
+                    <mat-icon>info</mat-icon>
+                    <p>Eres el único estudiante inscrito en esta materia</p>
+                  </div>
+                </ng-template>
+              </div>
+            </mat-expansion-panel>
+          </div>
+
+          <div *ngIf="!resumenInscripcion()?.companeros?.length" class="no-data">
+            <mat-icon>school_off</mat-icon>
+            <h3>Sin inscripciones</h3>
+            <p>Este estudiante no tiene materias inscritas actualmente.</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 2: Todos los Compañeros -->
+      <mat-tab label="Todos los Compañeros">
+        <div class="tab-content">
+          <mat-card *ngIf="getUniqueCompaneros().length > 0" class="all-classmates-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>people</mat-icon>
+                Lista Completa de Compañeros
+              </mat-card-title>
+              <mat-card-subtitle>
+                {{ getUniqueCompaneros().length }} estudiante(s) únicos compartiendo clases
+              </mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="classmates-grid">
+                <mat-card *ngFor="let companero of getUniqueCompaneros()" class="classmate-card" elevation="2">
+                  <mat-card-content>
+                    <div class="classmate-info">
+                      <mat-icon class="classmate-avatar">account_circle</mat-icon>
+                      <div class="classmate-details">
+                        <h4>{{ companero.nombreEstudiante }}</h4>
+                        <p class="student-id">ID: {{ companero.estudianteId }}</p>
+                      </div>
+                    </div>
+                    
+                    <div class="shared-subjects">
+                      <p class="shared-count">
+                        <mat-icon>book</mat-icon>
+                        {{ getSharedSubjects(companero.estudianteId).length }} materia(s) compartida(s)
+                      </p>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <div *ngIf="getUniqueCompaneros().length === 0" class="no-data">
+            <mat-icon>person_off</mat-icon>
+            <h3>Sin compañeros</h3>
+            <p>Este estudiante no comparte clases con otros estudiantes actualmente.</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab 3: Mis Inscripciones -->
+      <mat-tab label="Mis Inscripciones">
+        <div class="tab-content">
+          <mat-card *ngIf="resumenInscripcion()?.inscripciones && resumenInscripcion()!.inscripciones.length > 0" class="enrollments-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>assignment</mat-icon>
+                Inscripciones Activas
+              </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="enrollments-list">
+                <mat-card *ngFor="let inscripcion of resumenInscripcion()?.inscripciones" class="enrollment-card" elevation="1">
+                  <mat-card-content>
+                    <div class="enrollment-header">
+                      <h3>{{ inscripcion.materia?.nombre }}</h3>
+                      <mat-chip color="primary" selected>{{ inscripcion.materia?.creditos }} créditos</mat-chip>
+                    </div>
+                    
+                    <div class="enrollment-details">
+                      <p><strong>Código:</strong> {{ inscripcion.materia?.codigo }}</p>
+                      <p><strong>Profesor:</strong> {{ inscripcion.profesor?.nombre }} {{ inscripcion.profesor?.apellido }}</p>
+                      <p><strong>Especialización:</strong> {{ inscripcion.profesor?.especializacion }}</p>
+                      <p><strong>Fecha de Inscripción:</strong> {{ formatDate(inscripcion.fechaInscripcion) }}</p>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <div *ngIf="!resumenInscripcion()?.inscripciones?.length" class="no-data">
+            <mat-icon>assignment_off</mat-icon>
+            <h3>Sin inscripciones</h3>
+            <p>Este estudiante no tiene inscripciones activas.</p>
+            <button mat-raised-button color="primary" routerLink="/students/inscripciones">
+              <mat-icon>add</mat-icon>
+              Realizar Inscripción
+            </button>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <div *ngIf="!loading() && !resumenInscripcion()" class="no-data">
+    <mat-icon>error_outline</mat-icon>
+    <h3>No se pudo cargar la información</h3>
+    <p>Hubo un problema al cargar los datos del estudiante.</p>
+    <button mat-raised-button color="primary" (click)="loadResumenInscripcion()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </div>
+</div>

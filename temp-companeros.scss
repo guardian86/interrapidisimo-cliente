@@ -1,0 +1,105 @@
+// Estilos simplificados usando solo Material Design
+.classmates-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .header-content {
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .subtitle {
+      margin: 8px 0 0 0;
+      color: #666;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  gap: 16px;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.tab-content {
+  padding: 16px 0;
+}
+
+.materia-card {
+  margin-bottom: 16px;
+
+  .materia-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .companeros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+}
+
+.companero-card {
+  .companero-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: #ccc;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .classmates-container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .companeros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-stats {
+    justify-content: center;
+  }
+}

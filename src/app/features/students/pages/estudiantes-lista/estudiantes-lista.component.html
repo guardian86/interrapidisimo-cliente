@@ -1,0 +1,94 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>people</mat-icon>
+      Lista de Estudiantes
+    </mat-card-title>
+    <mat-card-subtitle>
+      Administración de estudiantes registrados
+    </mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-actions>
+    <button mat-raised-button color="primary" routerLink="/estudiantes/crear">
+      <mat-icon>person_add</mat-icon>
+      Nuevo Estudiante
+    </button>
+    <button mat-button (click)="loadEstudiantes()" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
+    </button>
+  </mat-card-actions>
+
+  <mat-card-content>
+    @if (loading()) {
+      <div class="mat-center">
+        <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+        <p>Cargando estudiantes...</p>
+      </div>
+    } @else if (estudiantes().length === 0) {
+      <div class="mat-center">
+        <mat-icon>person_off</mat-icon>
+        <h3>No hay estudiantes registrados</h3>
+        <p>Comience agregando un nuevo estudiante</p>
+        <button mat-raised-button color="primary" routerLink="/estudiantes/crear">
+          <mat-icon>person_add</mat-icon>
+          Crear Primer Estudiante
+        </button>
+      </div>
+    } @else {
+      <mat-table [dataSource]="estudiantes()">
+        <ng-container matColumnDef="nombre">
+          <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
+          <mat-cell *matCellDef="let estudiante">
+            <strong>{{estudiante.nombre}} {{estudiante.apellido}}</strong>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
+          <mat-cell *matCellDef="let estudiante">{{estudiante.email}}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="telefono">
+          <mat-header-cell *matHeaderCellDef>Teléfono</mat-header-cell>
+          <mat-cell *matCellDef="let estudiante">{{estudiante.telefono}}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="fechaRegistro">
+          <mat-header-cell *matHeaderCellDef>Fecha Registro</mat-header-cell>
+          <mat-cell *matCellDef="let estudiante">
+            {{estudiante.fechaRegistro | date:'short'}}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+          <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+          <mat-cell *matCellDef="let estudiante">
+            <button mat-icon-button [matMenuTriggerFor]="menu" color="primary">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item [routerLink]="['/estudiantes', estudiante.id, 'inscribir']">
+                <mat-icon>assignment</mat-icon>
+                Inscribir Materias
+              </button>
+              <button mat-menu-item [routerLink]="['/estudiantes', estudiante.id, 'companeros']">
+                <mat-icon>group</mat-icon>
+                Ver Compañeros
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="deleteEstudiante(estudiante.id)" class="warn-text">
+                <mat-icon>delete</mat-icon>
+                Eliminar
+              </button>
+            </mat-menu>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    }
+  </mat-card-content>
+</mat-card>

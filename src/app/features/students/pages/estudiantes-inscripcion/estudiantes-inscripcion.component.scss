@@ -1,0 +1,61 @@
+// Estilos simplificados usando solo Material Design
+.enrollment-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.enrollment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field-full {
+  width: 100%;
+}
+
+.selection-summary {
+  margin-top: 24px;
+  
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+}
+
+.summary-info {
+  margin-bottom: 16px;
+}
+
+.materia-details {
+  padding: 16px 0;
+  
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+}
+
+.button-spinner {
+  margin-right: 8px;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .enrollment-container {
+    padding: 16px;
+  }
+  
+  mat-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+    
+    button {
+      margin: 4px 0;
+    }
+  }
+}

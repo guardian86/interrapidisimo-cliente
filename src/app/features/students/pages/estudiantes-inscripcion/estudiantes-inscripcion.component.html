@@ -1,0 +1,142 @@
+<div class="enrollment-container">
+  <mat-card class="enrollment-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>assignment</mat-icon>
+        Inscripción de Materias
+      </mat-card-title>
+      <mat-card-subtitle>
+        Seleccione un estudiante y máximo {{ MAX_MATERIAS }} materias ({{ CREDITOS_POR_MATERIA }} créditos cada una)
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="enrollmentForm" (ngSubmit)="onSubmit()" class="enrollment-form">
+        
+        <!-- Selección de estudiante -->
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Estudiante</mat-label>
+          <mat-select formControlName="estudianteId" placeholder="Seleccione un estudiante">
+            <mat-option *ngFor="let estudiante of estudiantes()" [value]="estudiante.id">
+              {{ estudiante.nombre }} {{ estudiante.apellido }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="enrollmentForm.get('estudianteId')?.invalid && enrollmentForm.get('estudianteId')?.touched">
+            {{ getErrorMessage('estudianteId') }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Selección de materias -->
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Materias (máximo {{ MAX_MATERIAS }})</mat-label>
+          <mat-select 
+            formControlName="materiaIds" 
+            multiple 
+            placeholder="Seleccione las materias"
+            (selectionChange)="onMateriaSelectionChange($event.value)">
+            <mat-option *ngFor="let materia of materias()" [value]="materia.id">
+              {{ materia.nombre }} - {{ materia.codigo }} 
+              <span class="materia-info">({{ materia.creditos }} créditos)</span>
+              <span *ngIf="materia.profesor" class="profesor-info">
+                - Prof. {{ materia.profesor.nombre }} {{ materia.profesor.apellido }}
+              </span>
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="enrollmentForm.get('materiaIds')?.invalid && enrollmentForm.get('materiaIds')?.touched">
+            {{ getErrorMessage('materiaIds') }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Resumen de selección -->
+        <div *ngIf="selectedMaterias().length > 0" class="selection-summary">
+          <h3>
+            <mat-icon>assessment</mat-icon>
+            Resumen de Inscripción
+          </h3>
+          
+          <div class="summary-info">
+            <mat-chip-set>
+              <mat-chip color="primary" selected>
+                Total de Materias: {{ selectedMaterias().length }}/{{ MAX_MATERIAS }}
+              </mat-chip>
+              <mat-chip color="accent" selected>
+                Total de Créditos: {{ getTotalCreditos() }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <!-- Lista de materias seleccionadas -->
+          <div class="expansion-panels">
+            <mat-expansion-panel *ngFor="let materia of selectedMaterias()">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>book</mat-icon>
+                  {{ materia.nombre }}
+                </mat-panel-title>
+                <mat-panel-description>
+                  {{ materia.codigo }} - {{ materia.creditos }} créditos
+                  <span *ngIf="materia.profesor">
+                    - Prof. {{ materia.profesor.nombre }} {{ materia.profesor.apellido }}
+                  </span>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="materia-details">
+                <p><strong>Descripción:</strong> {{ materia.descripcion }}</p>
+                
+                <div *ngIf="materia.profesor" class="profesor-details">
+                  <h4>
+                    <mat-icon>person</mat-icon>
+                    Profesor
+                  </h4>
+                  <p>
+                    <strong>{{ materia.profesor.nombre }} {{ materia.profesor.apellido }}</strong><br>
+                    <em>{{ materia.profesor.especializacion }}</em>
+                  </p>
+                </div>
+
+                <!-- Compañeros de clase -->
+                <div *ngIf="companeros()[materia.id] && companeros()[materia.id].length > 0" class="classmates">
+                  <h4>
+                    <mat-icon>groups</mat-icon>
+                    Compañeros de Clase ({{ companeros()[materia.id].length }})
+                  </h4>
+                  <mat-list dense>
+                    <mat-list-item *ngFor="let companero of companeros()[materia.id]">
+                      <mat-icon matListIcon>person</mat-icon>
+                      <div matLine>{{ companero.nombre }} {{ companero.apellido }}</div>
+                    </mat-list-item>
+                  </mat-list>
+                </div>
+
+                <div *ngIf="!companeros()[materia.id] || companeros()[materia.id].length === 0" class="no-classmates">
+                  <p>
+                    <mat-icon>info</mat-icon>
+                    Serás el primer estudiante inscrito en esta materia
+                  </p>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </div>
+        </div>
+
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions class="card-actions">
+      <button mat-button type="button" (click)="onCancel()" [disabled]="loading()">
+        <mat-icon>cancel</mat-icon>
+        Cancelar
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="onSubmit()" 
+        [disabled]="loading() || enrollmentForm.invalid || selectedMaterias().length === 0">
+        <mat-spinner *ngIf="loading()" diameter="20" class="button-spinner"></mat-spinner>
+        <mat-icon *ngIf="!loading()">save</mat-icon>
+        {{ loading() ? 'Inscribiendo...' : 'Realizar Inscripción' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
