@@ -12,8 +12,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InscripcionService } from '../../../../core/services/inscripcion.service';
 import { EstudianteService } from '../../../../core/services/student.service';
+import { EstudianteDto, EstudianteListDto } from '../../../../core/models/estudiante.model';
 import { ResumenInscripcionEstudiante } from '../../../../core/models/inscripcion.model';
-import { Estudiante } from '../../../../core/models/estudiante.model';
 
 @Component({
   selector: 'app-estudiantes-companeros',
@@ -34,8 +34,9 @@ import { Estudiante } from '../../../../core/models/estudiante.model';
   styleUrls: ['./estudiantes-companeros.component.scss']
 })
 export class EstudiantesCompanerosComponent implements OnInit {
-  estudiante = signal<Estudiante | null>(null);
+  estudiante = signal<EstudianteDto | null>(null);
   resumenInscripcion = signal<ResumenInscripcionEstudiante | null>(null);
+  todosLosEstudiantes = signal<EstudianteListDto[]>([]);
   loading = signal(false);
   estudianteId: number = 0;
 
@@ -52,13 +53,37 @@ export class EstudiantesCompanerosComponent implements OnInit {
       if (this.estudianteId) {
         this.loadEstudianteData();
         this.loadResumenInscripcion();
+        this.loadTodosLosEstudiantes();
+      }
+    });
+  }
+
+  loadResumenInscripcion(): void {
+    this.loading.set(true);
+    
+    this.inscripcionService.getResumenInscripcionEstudiante(this.estudianteId).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.resumenInscripcion.set(response.data);
+        }
+        this.loading.set(false);
+      },
+      error: (error: any) => {
+        console.error('Error loading enrollment summary:', error);
+        this.snackBar.open('Error al cargar resumen de inscripciones', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'bottom',
+          panelClass: ['error-snackbar']
+        });
+        this.loading.set(false);
       }
     });
   }
 
   loadEstudianteData(): void {
     this.estudianteService.getEstudianteById(this.estudianteId).subscribe({
-      next: (response: any) => {
+      next: (response) => {
         if (response.success && response.data) {
           this.estudiante.set(response.data);
         }
@@ -75,19 +100,21 @@ export class EstudiantesCompanerosComponent implements OnInit {
     });
   }
 
-  loadResumenInscripcion(): void {
+  loadTodosLosEstudiantes(): void {
     this.loading.set(true);
     
-    this.inscripcionService.getResumenEstudiante(this.estudianteId).subscribe({
-      next: (response: any) => {
+    this.estudianteService.getEstudiantes().subscribe({
+      next: (response) => {
         if (response.success && response.data) {
-          this.resumenInscripcion.set(response.data);
+          // Filtrar para no incluir al estudiante actual
+          const otrosEstudiantes = response.data.filter(est => est.id !== this.estudianteId);
+          this.todosLosEstudiantes.set(otrosEstudiantes);
         }
         this.loading.set(false);
       },
       error: (error: any) => {
-        console.error('Error loading enrollment summary:', error);
-        this.snackBar.open('Error al cargar resumen de inscripciones', 'Cerrar', {
+        console.error('Error loading all students:', error);
+        this.snackBar.open('Error al cargar lista de estudiantes', 'Cerrar', {
           duration: 3000,
           horizontalPosition: 'right',
           verticalPosition: 'bottom',
@@ -107,45 +134,54 @@ export class EstudiantesCompanerosComponent implements OnInit {
     return this.resumenInscripcion()?.inscripciones?.length || 0;
   }
 
+  getTotalCreditos(): number {
+    return this.resumenInscripcion()?.totalCreditos || 0;
+  }
+
   getTotalCompaneros(): number {
     const resumen = this.resumenInscripcion();
     if (!resumen?.companeros) return 0;
     
-    return resumen.companeros.reduce((total, materia) => 
-      total + materia.companeros.length, 0
+    return resumen.companeros.reduce((total, materiaInfo) => 
+      total + materiaInfo.companeros.length, 0
     );
   }
 
-  getUniqueCompaneros(): { estudianteId: number, nombreEstudiante: string }[] {
+  getUniqueCompaneros(): any[] {
     const resumen = this.resumenInscripcion();
     if (!resumen?.companeros) return [];
     
-    const companerosMap = new Map<number, string>();
+    const companerosMap = new Map<number, any>();
     
-    resumen.companeros.forEach(materia => {
-      materia.companeros.forEach(companero => {
-        companerosMap.set(companero.estudianteId, companero.nombreEstudiante);
+    resumen.companeros.forEach(materiaInfo => {
+      materiaInfo.companeros.forEach(companero => {
+        if (!companerosMap.has(companero.estudianteId)) {
+          companerosMap.set(companero.estudianteId, {
+            estudianteId: companero.estudianteId,
+            nombreEstudiante: companero.nombreEstudiante,
+            materias: [materiaInfo.nombreMateria]
+          });
+        } else {
+          companerosMap.get(companero.estudianteId)?.materias.push(materiaInfo.nombreMateria);
+        }
       });
     });
     
-    return Array.from(companerosMap.entries()).map(([id, nombre]) => ({
-      estudianteId: id,
-      nombreEstudiante: nombre
-    }));
+    return Array.from(companerosMap.values());
   }
 
-  getSharedSubjects(estudianteId: number): string[] {
+  getSharedSubjects(companeroId: number): string[] {
     const resumen = this.resumenInscripcion();
     if (!resumen?.companeros) return [];
     
     const sharedSubjects: string[] = [];
     
-    resumen.companeros.forEach(materia => {
-      const isInThisSubject = materia.companeros.some(
-        companero => companero.estudianteId === estudianteId
+    resumen.companeros.forEach(materiaInfo => {
+      const isInThisSubject = materiaInfo.companeros.some(
+        companero => companero.estudianteId === companeroId
       );
       if (isInThisSubject) {
-        sharedSubjects.push(materia.nombreMateria);
+        sharedSubjects.push(materiaInfo.nombreMateria);
       }
     });
     

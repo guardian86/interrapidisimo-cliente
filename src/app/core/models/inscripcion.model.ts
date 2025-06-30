@@ -1,49 +1,89 @@
-export interface Inscripcion {
+// DTOs basados en el esquema exacto del WebAPI
+
+// InscripcionCreateDto del WebAPI
+export interface InscripcionCreateDto {
+  estudianteId: number;
+  materiaId: number;
+  profesorId: number;
+}
+
+// InscripcionResponseDto del WebAPI
+export interface InscripcionResponseDto {
+  estudianteId: number;
+  materiaId: number;
+  profesorId: number;
+  fechaInscripcion: string;
+  exitoso: boolean;
+  mensaje: string;
+}
+
+// MateriasDisponiblesParaEstudianteDto del WebAPI
+export interface MateriasDisponiblesParaEstudianteDto {
+  materiaId: number;
+  nombreMateria: string;
+  codigoMateria: string;
+  creditosMateria: number;
+  profesoresDisponibles: ProfesorDisponibleDto[];
+}
+
+// ProfesorDisponibleDto del WebAPI
+export interface ProfesorDisponibleDto {
+  profesorId: number;
+  nombreCompleto: string;
+  especialidad: string;
+}
+
+// DTOs para respuestas internas de la app (compatibilidad)
+export interface InscripcionDto {
   id: number;
   estudianteId: number;
   materiaId: number;
   profesorId: number;
   fechaInscripcion: string;
-  activo: boolean;
+  estado: string;
 }
 
-export interface EstudianteMateriaProfesor {
+export interface InscripcionListDto extends InscripcionDto {
+  nombreEstudiante?: string;
+  nombreMateria?: string;
+  nombreProfesor?: string;
+}
+
+export interface InscripcionDetailDto extends InscripcionDto {
+  nombreEstudiante: string;
+  nombreMateria: string;
+  codigoMateria: string;
+  creditos: number;
+  nombreProfesor: string;
+}
+
+export interface ValidacionInscripcionDto {
+  esValida: boolean;
+  mensajes: string[];
+  creditosActuales: number;
+  creditosMaximos: number;
+  profesoresIds: number[];
+}
+
+export interface MateriaDisponibleDto {
   id: number;
-  estudianteId: number;
-  materiaId: number;
-  profesorId: number;
-  fechaInscripcion: string;
-  activo: boolean;
-  estudiante?: {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-  };
-  materia?: {
-    id: number;
-    nombre: string;
-    codigo: string;
-    creditos: number;
-  };
-  profesor?: {
-    id: number;
-    nombre: string;
-    apellido: string;
-    especializacion: string;
-  };
+  nombre: string;
+  codigo: string;
+  creditos: number;
+  descripcion: string;
+  profesores: ProfesorDisponibleDto[];
 }
 
-export interface CreateInscripcionDto {
-  estudianteId: number;
-  materiaId: number;
-}
+// Alias para compatibilidad hacia atrás
+export interface CreateInscripcionDto extends InscripcionCreateDto {}
+export interface Inscripcion extends InscripcionDto {}
+export interface EstudianteMateriaProfesor extends InscripcionDetailDto {}
 
 export interface ResumenInscripcionEstudiante {
   estudianteId: number;
   nombreEstudiante: string;
   totalCreditos: number;
-  inscripciones: EstudianteMateriaProfesor[];
+  inscripciones: InscripcionDetailDto[];
   companeros: InfoCompaneros[];
 }
 
@@ -57,8 +97,7 @@ export interface InfoCompaneros {
   }[];
 }
 
-export interface ValidacionInscripcion {
-  esValida: boolean;
+export interface ValidacionInscripcion extends ValidacionInscripcionDto {
   errores: string[];
   creditosActuales: number;
   creditosMaximos: number;

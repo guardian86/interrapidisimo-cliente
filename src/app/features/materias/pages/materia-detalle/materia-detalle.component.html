@@ -1,0 +1,139 @@
+<div class="materia-detalle-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+      <p>Cargando información de la materia...</p>
+    </div>
+  } @else if (materia()) {
+    <!-- Header con información principal -->
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-card-title class="materia-titulo">
+          {{ materia()?.nombre }}
+        </mat-card-title>
+        <mat-card-subtitle class="materia-codigo">
+          Código: {{ materia()?.codigo }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="materia-info-grid">
+          <div class="info-item">
+            <mat-icon>star</mat-icon>
+            <div>
+              <span class="label">Créditos</span>
+              <span class="value">{{ materia()?.creditos }}</span>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <mat-icon>person</mat-icon>
+            <div>
+              <span class="label">Profesor</span>
+              <span class="value">{{ getProfesorNombre() }}</span>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <mat-icon>school</mat-icon>
+            <div>
+              <span class="label">Especialización</span>
+              <span class="value">{{ getProfesorEspecializacion() }}</span>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <mat-icon>group</mat-icon>
+            <div>
+              <span class="label">Estudiantes Inscritos</span>
+              <span class="value">{{ estudiantesInscritos().length }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+      
+      <mat-card-actions align="end">
+        <button mat-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Volver a Materias
+        </button>
+        <button mat-raised-button color="primary">
+          <mat-icon>assignment</mat-icon>
+          Inscribirse
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Descripción de la materia -->
+    @if (materia()?.descripcion) {
+      <mat-card class="descripcion-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>description</mat-icon>
+            Descripción de la Materia
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ materia()?.descripcion }}</p>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Lista de estudiantes inscritos -->
+    <mat-card class="estudiantes-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>people</mat-icon>
+          Estudiantes Inscritos
+        </mat-card-title>
+        <mat-card-subtitle>
+          Compañeros que están cursando esta materia
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        @if (loadingEstudiantes()) {
+          <div class="loading-estudiantes">
+            <mat-progress-spinner mode="indeterminate" diameter="24"></mat-progress-spinner>
+            <span>Cargando estudiantes...</span>
+          </div>
+        } @else if (estudiantesInscritos().length === 0) {
+          <div class="empty-estudiantes">
+            <mat-icon>person_off</mat-icon>
+            <p>No hay estudiantes inscritos en esta materia</p>
+          </div>
+        } @else {
+          <div class="estudiantes-grid">
+            @for (inscripcion of estudiantesInscritos(); track inscripcion.id) {
+              <div class="estudiante-item">
+                <mat-icon>person</mat-icon>
+                <div class="estudiante-info">
+                  <span class="nombre">{{ inscripcion.estudiante?.nombre }} {{ inscripcion.estudiante?.apellido }}</span>
+                  <span class="email">{{ inscripcion.estudiante?.email }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Información adicional -->
+    <mat-card class="info-adicional-card">
+      <mat-card-content>
+        <div class="requisitos-info">
+          <h3>
+            <mat-icon>info</mat-icon>
+            Información Importante
+          </h3>
+          <ul>
+            <li>Esta materia otorga <strong>{{ materia()?.creditos }} créditos</strong> académicos</li>
+            <li>Solo puedes inscribir <strong>máximo 3 materias</strong> por período</li>
+            <li>No puedes tener <strong>clases con el mismo profesor</strong> en diferentes materias</li>
+            <li>El total de créditos no puede exceder <strong>9 créditos</strong> por período</li>
+          </ul>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+}</div>

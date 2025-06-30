@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Profesor, CreateProfesorDto, UpdateProfesorDto } from '../models/profesor.model';
+import { 
+  ProfesorDto, 
+  ProfesorListDto, 
+  ProfesorCreateDto, 
+  ProfesorUpdateDto,
+  ProfesorDisponibleDto,
+  MateriaQueDict
+} from '../models/profesor.model';
 import { ApiResponse } from '../interfaces/api-response.interface';
 import { API_ENDPOINTS } from '../settings/app.config';
 
@@ -15,29 +22,36 @@ export class ProfesorService {
   /**
    * Obtiene todos los profesores
    */
-  getProfesores(): Observable<ApiResponse<Profesor[]>> {
-    return this.http.get<ApiResponse<Profesor[]>>(API_ENDPOINTS.PROFESORES);
+  getProfesores(): Observable<ApiResponse<ProfesorListDto[]>> {
+    return this.http.get<ApiResponse<ProfesorListDto[]>>(API_ENDPOINTS.PROFESORES);
   }
 
   /**
    * Obtiene un profesor por ID
    */
-  getProfesorById(id: number): Observable<ApiResponse<Profesor>> {
-    return this.http.get<ApiResponse<Profesor>>(`${API_ENDPOINTS.PROFESORES}/${id}`);
+  getProfesorById(id: number): Observable<ApiResponse<ProfesorDto>> {
+    return this.http.get<ApiResponse<ProfesorDto>>(`${API_ENDPOINTS.PROFESORES}/${id}`);
+  }
+
+  /**
+   * Obtiene profesores disponibles para una materia
+   */
+  getProfesoresDisponibles(materiaId: number): Observable<ApiResponse<ProfesorDisponibleDto[]>> {
+    return this.http.get<ApiResponse<ProfesorDisponibleDto[]>>(`${API_ENDPOINTS.PROFESORES}/disponibles/${materiaId}`);
   }
 
   /**
    * Crea un nuevo profesor
    */
-  createProfesor(profesor: CreateProfesorDto): Observable<ApiResponse<Profesor>> {
-    return this.http.post<ApiResponse<Profesor>>(API_ENDPOINTS.PROFESORES, profesor);
+  createProfesor(profesor: ProfesorCreateDto): Observable<ApiResponse<ProfesorDto>> {
+    return this.http.post<ApiResponse<ProfesorDto>>(API_ENDPOINTS.PROFESORES, profesor);
   }
 
   /**
    * Actualiza un profesor existente
    */
-  updateProfesor(id: number, profesor: UpdateProfesorDto): Observable<ApiResponse<Profesor>> {
-    return this.http.put<ApiResponse<Profesor>>(`${API_ENDPOINTS.PROFESORES}/${id}`, profesor);
+  updateProfesor(id: number, profesor: ProfesorUpdateDto): Observable<ApiResponse<ProfesorDto>> {
+    return this.http.put<ApiResponse<ProfesorDto>>(`${API_ENDPOINTS.PROFESORES}/${id}`, profesor);
   }
 
   /**
@@ -48,16 +62,9 @@ export class ProfesorService {
   }
 
   /**
-   * Obtiene profesores activos únicamente
-   */
-  getProfesoresActivos(): Observable<ApiResponse<Profesor[]>> {
-    return this.http.get<ApiResponse<Profesor[]>>(`${API_ENDPOINTS.PROFESORES}/activos`);
-  }
-
-  /**
    * Obtiene las materias que dicta un profesor
    */
-  getMateriasByProfesor(profesorId: number): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${API_ENDPOINTS.PROFESORES}/${profesorId}/materias`);
+  getMateriasByProfesor(profesorId: number): Observable<ApiResponse<MateriaQueDict[]>> {
+    return this.http.get<ApiResponse<MateriaQueDict[]>>(`${API_ENDPOINTS.MATERIAS_PROFESORES_BY_PROFESOR}/${profesorId}`);
   }
 }

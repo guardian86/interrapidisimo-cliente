@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { EstudianteService } from '../../../../core/services/student.service';
-import { Estudiante } from '../../../../core/models/estudiante.model';
+import { EstudianteListDto } from '../../../../core/models/estudiante.model';
 
 @Component({
   selector: 'app-estudiantes-lista',
@@ -30,7 +30,7 @@ import { Estudiante } from '../../../../core/models/estudiante.model';
   styleUrls: ['./estudiantes-lista.component.scss']
 })
 export class EstudiantesListaComponent implements OnInit {
-  estudiantes = signal<Estudiante[]>([]);
+  estudiantes = signal<EstudianteListDto[]>([]);
   loading = signal(false);
   displayedColumns: string[] = ['nombre', 'email', 'telefono', 'fechaRegistro', 'acciones'];
 
@@ -48,14 +48,12 @@ export class EstudiantesListaComponent implements OnInit {
     
     this.estudianteService.getEstudiantes().subscribe({
       next: (response: any) => {
-        console.log('API Response:', response); // Para debug
+        console.log('API Response:', response);
         if (response && response.success && response.data) {
-          // Manejar tanto respuesta paginada como array directo
           const estudiantes = Array.isArray(response.data) ? response.data : response.data.data || [];
           this.estudiantes.set(estudiantes);
           console.log('Estudiantes cargados:', estudiantes.length);
         } else if (response && Array.isArray(response)) {
-          // Si la respuesta es directamente un array
           this.estudiantes.set(response);
           console.log('Estudiantes cargados (array directo):', response.length);
         } else {
@@ -66,6 +64,8 @@ export class EstudiantesListaComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading students:', error);
+        this.loading.set(false);
+        
         let errorMessage = 'Error al cargar estudiantes. Verifique que la API esté ejecutándose.';
         
         if (error.status === 0) {
@@ -76,13 +76,15 @@ export class EstudiantesListaComponent implements OnInit {
           errorMessage = 'Error interno del servidor. Contacte al administrador.';
         }
         
-        this.snackBar.open(errorMessage, 'Cerrar', {
+        this.snackBar.open(errorMessage, 'Reintentar', {
           duration: 8000,
           horizontalPosition: 'right',
           verticalPosition: 'bottom',
           panelClass: ['error-snackbar']
+        }).onAction().subscribe(() => {
+          this.loadEstudiantes();
         });
-        this.loading.set(false);
+        
         this.estudiantes.set([]);
       }
     });

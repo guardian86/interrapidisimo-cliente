@@ -1,0 +1,269 @@
+<div class="wizard-container">
+  <mat-card class="wizard-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>assignment</mat-icon>
+        Wizard de Inscripción
+      </mat-card-title>
+      <mat-card-subtitle>
+        Inscríbete a tus materias siguiendo estos sencillos pasos
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-stepper #stepper linear="true" orientation="horizontal">
+        
+        <!-- Step 1: Seleccionar Estudiante -->
+        <mat-step [stepControl]="estudianteForm" label="Estudiante">
+          <form [formGroup]="estudianteForm">
+            <div class="step-content">
+              <h3>
+                <mat-icon>person</mat-icon>
+                Selecciona el estudiante
+              </h3>
+              
+              @if (loading()) {
+                <div class="loading-container">
+                  <mat-progress-spinner diameter="50"></mat-progress-spinner>
+                  <p>Cargando estudiantes...</p>
+                </div>
+              } @else {
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>Estudiante</mat-label>
+                  <mat-select formControlName="estudianteId" placeholder="Seleccione un estudiante">
+                    <mat-option *ngFor="let estudiante of estudiantes()" [value]="estudiante.id">
+                      {{ estudiante.nombre }} {{ estudiante.apellido }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="estudianteForm.get('estudianteId')?.invalid && estudianteForm.get('estudianteId')?.touched">
+                    Debes seleccionar un estudiante
+                  </mat-error>
+                </mat-form-field>
+              }
+              
+              <div class="step-actions">
+                <button type="button" mat-raised-button color="primary" matStepperNext [disabled]="estudianteForm.invalid">
+                  <mat-icon>arrow_forward</mat-icon>
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 2: Seleccionar Materias -->
+        <mat-step [stepControl]="materiasForm" label="Materias">
+          <form [formGroup]="materiasForm">
+            <div class="step-content">
+              <h3>
+                <mat-icon>book</mat-icon>
+                Selecciona tus materias
+              </h3>
+              
+              <!-- Progress indicators -->
+              <div class="progress-section">
+                <div class="progress-item">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getProgresoMateriasPercentage()"
+                    color="primary">
+                  </mat-progress-bar>
+                  <span class="progress-label">
+                    Materias: {{ materiasSeleccionadas().length }}/{{ MAX_MATERIAS }}
+                  </span>
+                </div>
+                
+                <div class="progress-item">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getProgresoCreditosPercentage()"
+                    [color]="creditosActuales() >= MAX_CREDITOS ? 'warn' : 'accent'">
+                  </mat-progress-bar>
+                  <span class="progress-label">
+                    Créditos: {{ creditosActuales() }}/{{ MAX_CREDITOS }}
+                  </span>
+                </div>
+              </div>
+
+              @if (loadingMaterias()) {
+                <div class="loading-container">
+                  <mat-progress-spinner diameter="50"></mat-progress-spinner>
+                  <p>Cargando materias...</p>
+                </div>
+              } @else {
+                <div class="materias-grid">
+                  <div *ngFor="let materia of materias()" 
+                       class="materia-card"
+                       [class.selected]="isMateriaSelected(materia)"
+                       [class.disabled]="isMateriaDisabled(materia)">
+                    
+                    <mat-checkbox 
+                      [checked]="isMateriaSelected(materia)"
+                      [disabled]="isMateriaDisabled(materia)"
+                      (change)="onMateriaToggle(materia, $event.checked)">
+                      
+                      <div class="materia-info">
+                        <div class="materia-title">{{ materia.nombre }}</div>
+                        <div class="materia-code">{{ materia.codigo }}</div>
+                        <div class="materia-credits">
+                          <mat-icon>credit_score</mat-icon>
+                          {{ materia.creditos }} créditos
+                        </div>
+                        <div class="materia-professor" *ngIf="materia.profesor">
+                          <mat-icon>person</mat-icon>
+                          Prof. {{ materia.profesor.nombre }} {{ materia.profesor.apellido }}
+                        </div>
+                      </div>
+                    </mat-checkbox>
+                  </div>
+                </div>
+              }
+
+              <!-- Resumen de selección -->
+              @if (materiasSeleccionadas().length > 0) {
+                <div class="selection-summary">
+                  <h4>
+                    <mat-icon>assessment</mat-icon>
+                    Materias Seleccionadas
+                  </h4>
+                  
+                  <mat-chip-set>
+                    <mat-chip *ngFor="let materia of materiasSeleccionadas()" 
+                              color="primary" 
+                              (removed)="onMateriaToggle(materia, false)"
+                              removable="true">
+                      {{ materia.nombre }} ({{ materia.creditos }} créditos)
+                      <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+              }
+              
+              <div class="step-actions">
+                <button type="button" mat-button matStepperPrevious>
+                  <mat-icon>arrow_back</mat-icon>
+                  Anterior
+                </button>
+                <button type="button" mat-raised-button color="primary" matStepperNext 
+                        [disabled]="materiasForm.invalid || materiasSeleccionadas().length === 0">
+                  <mat-icon>arrow_forward</mat-icon>
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 3: Confirmar Inscripción -->
+        <mat-step label="Confirmar">
+          <div class="step-content">
+            <h3>
+              <mat-icon>done_all</mat-icon>
+              Confirmar Inscripción
+            </h3>
+            
+            <div class="confirmation-summary">
+              <!-- Estudiante seleccionado -->
+              <mat-card class="summary-card">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>person</mat-icon>
+                    Estudiante
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  @if (estudianteForm.get('estudianteId')?.value) {
+                    @for (estudiante of estudiantes(); track estudiante.id) {
+                      @if (estudiante.id === estudianteForm.get('estudianteId')?.value) {
+                        <div class="estudiante-info">
+                          <strong>{{ estudiante.nombre }} {{ estudiante.apellido }}</strong>
+                          <p>{{ estudiante.email }}</p>
+                          <p>Teléfono: {{ estudiante.telefono }}</p>
+                        </div>
+                      }
+                    }
+                  }
+                </mat-card-content>
+              </mat-card>
+
+              <!-- Resumen de materias -->
+              <mat-card class="summary-card">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>book</mat-icon>
+                    Materias Seleccionadas
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="materias-summary">
+                    <div *ngFor="let materia of materiasSeleccionadas()" class="materia-summary-item">
+                      <div class="materia-name">{{ materia.nombre }}</div>
+                      <div class="materia-details">
+                        <span class="materia-code">{{ materia.codigo }}</span>
+                        <span class="materia-credits">{{ materia.creditos }} créditos</span>
+                        <span class="materia-professor" *ngIf="materia.profesor">
+                          Prof. {{ materia.profesor.nombre }} {{ materia.profesor.apellido }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <mat-divider></mat-divider>
+                  
+                  <div class="totals">
+                    <div class="total-item">
+                      <strong>Total Materias: {{ materiasSeleccionadas().length }}/{{ MAX_MATERIAS }}</strong>
+                    </div>
+                    <div class="total-item">
+                      <strong>Total Créditos: {{ creditosActuales() }}/{{ MAX_CREDITOS }}</strong>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <!-- Restricciones validadas -->
+              <mat-card class="summary-card">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>verified</mat-icon>
+                    Validaciones
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="validations">
+                    <div class="validation-item">
+                      <mat-icon color="primary">check_circle</mat-icon>
+                      <span>Máximo {{ MAX_MATERIAS }} materias: ✓</span>
+                    </div>
+                    <div class="validation-item">
+                      <mat-icon color="primary">check_circle</mat-icon>
+                      <span>Máximo {{ MAX_CREDITOS }} créditos: ✓</span>
+                    </div>
+                    <div class="validation-item">
+                      <mat-icon color="primary">check_circle</mat-icon>
+                      <span>Sin profesores repetidos: ✓</span>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+            
+            <div class="step-actions">
+              <button type="button" mat-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Anterior
+              </button>
+              <button type="button" mat-raised-button color="primary" 
+                      (click)="onSubmitInscripcion()"
+                      [disabled]="inscribiendo() || estudianteForm.invalid || materiasForm.invalid">
+                <mat-spinner *ngIf="inscribiendo()" diameter="20" class="button-spinner"></mat-spinner>
+                <mat-icon *ngIf="!inscribiendo()">save</mat-icon>
+                {{ inscribiendo() ? 'Inscribiendo...' : 'Confirmar Inscripción' }}
+              </button>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+</div>

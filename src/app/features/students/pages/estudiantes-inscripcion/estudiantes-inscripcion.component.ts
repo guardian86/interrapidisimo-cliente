@@ -15,9 +15,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { EstudianteService } from '../../../../core/services/student.service';
 import { MateriaService } from '../../../../core/services/materia.service';
 import { InscripcionService } from '../../../../core/services/inscripcion.service';
-import { Estudiante } from '../../../../core/models/estudiante.model';
-import { Materia } from '../../../../core/models/materia.model';
-import { Inscripcion, CreateInscripcionDto } from '../../../../core/models/inscripcion.model';
+import { EstudianteListDto } from '../../../../core/models/estudiante.model';
+import { MateriasDisponiblesParaEstudianteDto, ProfesorDisponibleDto } from '../../../../core/models/materia.model';
+import { InscripcionCreateDto } from '../../../../core/models/inscripcion.model';
 
 @Component({
   selector: 'app-estudiantes-inscripcion',
@@ -41,10 +41,10 @@ import { Inscripcion, CreateInscripcionDto } from '../../../../core/models/inscr
 })
 export class EstudiantesInscripcionComponent implements OnInit {
   enrollmentForm: FormGroup;
-  estudiantes = signal<Estudiante[]>([]);
-  materias = signal<Materia[]>([]);
-  selectedMaterias = signal<Materia[]>([]);
-  companeros = signal<{ [materiaId: number]: Estudiante[] }>({});
+  estudiantes = signal<EstudianteListDto[]>([]);
+  materias = signal<MateriasDisponiblesParaEstudianteDto[]>([]);
+  selectedMaterias = signal<MateriasDisponiblesParaEstudianteDto[]>([]);
+  profesoresSeleccionados = signal<{ [materiaId: number]: ProfesorDisponibleDto | undefined }>({});
   loading = signal(false);
   
   readonly MAX_MATERIAS = 3;
@@ -66,33 +66,45 @@ export class EstudiantesInscripcionComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEstudiantes();
-    this.loadMaterias();
+    this.loadMateriasDisponibles();
   }
 
   loadEstudiantes(): void {
     this.estudianteService.getEstudiantes().subscribe({
-      next: (response: any) => {
+      next: (response) => {
         if (response.success && response.data) {
-          const estudiantes = Array.isArray(response.data) ? response.data : response.data.data || [];
-          this.estudiantes.set(estudiantes);
+          this.estudiantes.set(response.data);
         }
       },
       error: (error) => {
         console.error('Error loading students:', error);
+        this.snackBar.open('Error al cargar estudiantes', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'bottom',
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
-  loadMaterias(): void {
-    this.materiaService.getMaterias().subscribe({
-      next: (response: any) => {
+  loadMateriasDisponibles(): void {
+    // Para simplificar, cargamos todas las materias disponibles
+    // En un escenario real, esto podría depender del estudiante seleccionado
+    this.materiaService.getMateriasDisponibles().subscribe({
+      next: (response) => {
         if (response.success && response.data) {
-          const materias = Array.isArray(response.data) ? response.data : response.data.data || [];
-          this.materias.set(materias);
+          this.materias.set(response.data);
         }
       },
       error: (error) => {
-        console.error('Error loading subjects:', error);
+        console.error('Error loading available subjects:', error);
+        this.snackBar.open('Error al cargar materias disponibles', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'bottom',
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
@@ -112,77 +124,100 @@ export class EstudiantesInscripcionComponent implements OnInit {
       materiaIds = limitedIds;
     }
 
-    const selectedMaterias = this.materias().filter(m => materiaIds.includes(m.id));
+    const selectedMaterias = this.materias().filter(m => materiaIds.includes(m.materiaId));
     this.selectedMaterias.set(selectedMaterias);
     
-    // Validar que no haya el mismo profesor en las materias seleccionadas
-    this.validateProfesores(selectedMaterias);
+    // Limpiar profesores seleccionados para materias que ya no están seleccionadas
+    const currentProfesores = this.profesoresSeleccionados();
+    const updatedProfesores: { [materiaId: number]: ProfesorDisponibleDto } = {};
     
-    // Cargar compañeros para cada materia seleccionada
-    this.loadCompaneros(materiaIds);
+    materiaIds.forEach(materiaId => {
+      if (currentProfesores[materiaId]) {
+        updatedProfesores[materiaId] = currentProfesores[materiaId];
+      }
+    });
+    
+    this.profesoresSeleccionados.set(updatedProfesores);
   }
 
-  validateProfesores(selectedMaterias: Materia[]): void {
-    const profesorIds = selectedMaterias
-      .map(m => m.profesorId)
-      .filter(id => id !== undefined);
+  onProfesorSelectionChange(materiaId: number, profesorId: number): void {
+    const materia = this.materias().find(m => m.materiaId === materiaId);
+    const profesor = materia?.profesoresDisponibles.find(p => p.profesorId === profesorId);
     
-    const uniqueProfesores = new Set(profesorIds);
-    
-    if (profesorIds.length !== uniqueProfesores.size) {
-      this.snackBar.open('No puede tener clases con el mismo profesor', 'Cerrar', {
-        duration: 4000,
-        horizontalPosition: 'right',
-        verticalPosition: 'bottom',
-        panelClass: ['error-snackbar']
-      });
-      
-      // Limpiar la selección
-      this.enrollmentForm.patchValue({ materiaIds: [] });
-      this.selectedMaterias.set([]);
+    if (profesor) {
+      // Verificar si el profesor ya está seleccionado en otra materia
+      if (this.isProfesorAlreadySelected(profesorId, materiaId)) {
+        this.snackBar.open('Este profesor ya está seleccionado para otra materia', 'Cerrar', {
+          duration: 4000,
+          horizontalPosition: 'right',
+          verticalPosition: 'bottom',
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+
+      const updatedProfesores = { ...this.profesoresSeleccionados() };
+      updatedProfesores[materiaId] = profesor;
+      this.profesoresSeleccionados.set(updatedProfesores);
     }
   }
 
-  loadCompaneros(materiaIds: number[]): void {
-    const companerosMap: { [materiaId: number]: Estudiante[] } = {};
+  isProfesorAlreadySelected(profesorId: number, excludeMateriaId?: number): boolean {
+    const profesoresSeleccionados = this.profesoresSeleccionados();
     
-    materiaIds.forEach(materiaId => {
-      this.inscripcionService.getEstudiantesByMateria(materiaId).subscribe({
-        next: (response: any) => {
-          if (response.success && response.data) {
-            const estudiantes = Array.isArray(response.data) ? response.data : response.data.data || [];
-            companerosMap[materiaId] = estudiantes;
-            this.companeros.set({ ...this.companeros(), ...companerosMap });
-          }
-        },
-        error: (error) => {
-          console.error(`Error loading classmates for subject ${materiaId}:`, error);
-        }
-      });
+    return Object.entries(profesoresSeleccionados).some(([materiaIdStr, profesor]) => {
+      const materiaId = parseInt(materiaIdStr);
+      return profesor && profesor.profesorId === profesorId && materiaId !== excludeMateriaId;
     });
+  }
+
+  validateProfesores(selectedMaterias: MateriasDisponiblesParaEstudianteDto[]): void {
+    // Lógica de validación de profesores se maneja en el backend
+    // Por ahora solo guardamos la selección
+    console.log('Materias seleccionadas:', selectedMaterias);
   }
 
   onSubmit(): void {
     if (this.enrollmentForm.valid) {
+      // Verificar que todas las materias tengan profesor asignado
+      const materiasSeleccionadas = this.selectedMaterias();
+      const profesoresSeleccionados = this.profesoresSeleccionados();
+      
+      const materiasSinProfesor = materiasSeleccionadas.filter(
+        materia => !profesoresSeleccionados[materia.materiaId]
+      );
+      
+      if (materiasSinProfesor.length > 0) {
+        this.snackBar.open('Debe seleccionar un profesor para cada materia', 'Cerrar', {
+          duration: 4000,
+          horizontalPosition: 'right',
+          verticalPosition: 'bottom',
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+
       this.loading.set(true);
       const formValue = this.enrollmentForm.value;
       
-      const inscripciones: CreateInscripcionDto[] = formValue.materiaIds.map((materiaId: number) => ({
+      // Crear las inscripciones con materia y profesor
+      const inscripciones: InscripcionCreateDto[] = materiasSeleccionadas.map(materia => ({
         estudianteId: formValue.estudianteId,
-        materiaId: materiaId
+        materiaId: materia.materiaId,
+        profesorId: profesoresSeleccionados[materia.materiaId]!.profesorId
       }));
 
-      // Realizar inscripciones secuencialmente
+      // Procesar inscripciones una por una
       this.processInscripciones(inscripciones, 0);
     } else {
       this.markFormGroupTouched();
     }
   }
 
-  private processInscripciones(inscripciones: CreateInscripcionDto[], index: number): void {
+  private processInscripciones(inscripciones: InscripcionCreateDto[], index: number): void {
     if (index >= inscripciones.length) {
       this.loading.set(false);
-      this.snackBar.open('Inscripciones realizadas exitosamente', 'Cerrar', {
+      this.snackBar.open('¡Inscripciones realizadas exitosamente!', 'Cerrar', {
         duration: 3000,
         horizontalPosition: 'right',
         verticalPosition: 'bottom',
@@ -195,14 +230,16 @@ export class EstudiantesInscripcionComponent implements OnInit {
     const inscripcion = inscripciones[index];
     this.inscripcionService.createInscripcion(inscripcion).subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response.success && response.data?.exitoso) {
+          // Continuar con la siguiente inscripción
           this.processInscripciones(inscripciones, index + 1);
         } else {
-          this.handleInscripcionError(response.message || 'Error en la inscripción');
+          const mensaje = response.data?.mensaje || response.message || 'Error en la inscripción';
+          this.handleInscripcionError(mensaje);
         }
       },
       error: (error) => {
-        console.error('Error creating enrollment:', error);
+        console.error('Error en inscripción:', error);
         this.handleInscripcionError('Error al realizar la inscripción');
       }
     });
@@ -240,7 +277,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
   }
 
   getTotalCreditos(): number {
-    return this.selectedMaterias().length * this.CREDITOS_POR_MATERIA;
+    return this.selectedMaterias().length * 3; // 3 créditos por materia
   }
 
   getErrorMessage(fieldName: string): string {

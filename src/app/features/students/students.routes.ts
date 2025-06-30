@@ -14,6 +14,12 @@ export const STUDENTS_ROUTES: Routes = [
     title: 'Crear Estudiante'
   },
   {
+    path: ':id/editar',
+    loadComponent: () => import('./pages/estudiantes-editar/estudiantes-editar.component')
+      .then(m => m.EstudiantesEditarComponent),
+    title: 'Editar Estudiante'
+  },
+  {
     path: 'inscripciones',
     loadComponent: () => import('./pages/estudiantes-inscripcion/estudiantes-inscripcion.component')
       .then(m => m.EstudiantesInscripcionComponent),

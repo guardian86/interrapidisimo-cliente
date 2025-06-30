@@ -69,6 +69,10 @@
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
+              <button mat-menu-item [routerLink]="['/estudiantes', estudiante.id, 'editar']">
+                <mat-icon>edit</mat-icon>
+                Editar
+              </button>
               <button mat-menu-item [routerLink]="['/estudiantes', estudiante.id, 'inscribir']">
                 <mat-icon>assignment</mat-icon>
                 Inscribir Materias

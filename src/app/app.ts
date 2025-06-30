@@ -1,20 +1,12 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { LayoutComponent } from './shared/components/layout/layout.component';
 
 @Component({
   selector: 'app-root',
   imports: [
-    RouterOutlet, 
-    RouterLink, 
-    RouterLinkActive,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule
+    LayoutComponent
   ],
-  templateUrl: './app.html',
+  template: '<app-layout></app-layout>',
   styleUrl: './app.scss'
 })
 export class App {

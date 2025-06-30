@@ -1,0 +1,393 @@
+.wizard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.wizard-card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+// Step content styling
+.step-content {
+  padding: 24px 16px;
+  min-height: 400px;
+  
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    color: #1976d2;
+    
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+}
+
+// Form styling
+.form-field-full {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+// Loading container
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  
+  p {
+    margin-top: 16px;
+    color: #666;
+  }
+}
+
+// Progress section
+.progress-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.progress-item {
+  margin-bottom: 12px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  mat-progress-bar {
+    margin-bottom: 4px;
+  }
+  
+  .progress-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+  }
+}
+
+// Materias grid
+.materias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.materia-card {
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  cursor: pointer;
+  
+  &:hover {
+    border-color: #1976d2;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
+  }
+  
+  &.selected {
+    border-color: #1976d2;
+    background-color: #e3f2fd;
+    
+    .materia-info {
+      color: #1976d2;
+    }
+  }
+  
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #fafafa;
+    
+    &:hover {
+      border-color: #e0e0e0;
+      box-shadow: none;
+    }
+  }
+  
+  mat-checkbox {
+    width: 100%;
+    
+    ::ng-deep .mat-checkbox-layout {
+      width: 100%;
+    }
+  }
+}
+
+.materia-info {
+  margin-left: 32px;
+  
+  .materia-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .materia-code {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  
+  .materia-credits,
+  .materia-professor {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    margin-bottom: 4px;
+    
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  .materia-credits {
+    color: #4caf50;
+    font-weight: 500;
+  }
+  
+  .materia-professor {
+    color: #ff9800;
+  }
+}
+
+// Selection summary
+.selection-summary {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #1976d2;
+  
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    color: #1976d2;
+  }
+  
+  mat-chip-set {
+    margin-bottom: 16px;
+  }
+  
+  mat-chip {
+    margin: 4px;
+  }
+}
+
+// Step actions
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  
+  button {
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// Confirmation summary
+.confirmation-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary-card {
+  border: 1px solid #e0e0e0;
+  
+  mat-card-header {
+    background-color: #f5f5f5;
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+    }
+  }
+}
+
+// Estudiante info
+.estudiante-info {
+  strong {
+    font-size: 18px;
+    color: #1976d2;
+  }
+  
+  p {
+    margin: 4px 0;
+    color: #666;
+  }
+}
+
+// Materias summary
+.materias-summary {
+  margin-bottom: 16px;
+}
+
+.materia-summary-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .materia-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  .materia-details {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+    color: #666;
+    
+    .materia-code {
+      font-weight: 500;
+    }
+    
+    .materia-credits {
+      color: #4caf50;
+      font-weight: 500;
+    }
+    
+    .materia-professor {
+      color: #ff9800;
+    }
+  }
+}
+
+.totals {
+  margin-top: 16px;
+  padding-top: 16px;
+  
+  .total-item {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #1976d2;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Validations
+.validations {
+  .validation-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// Button spinner
+.button-spinner {
+  margin-right: 8px;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .wizard-container {
+    padding: 16px;
+  }
+  
+  .materias-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .step-actions {
+    flex-direction: column;
+    gap: 12px;
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  .materia-details {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .step-content {
+    padding: 16px 8px;
+    min-height: 300px;
+  }
+  
+  .progress-section {
+    padding: 12px;
+  }
+  
+  .materia-card {
+    padding: 12px;
+  }
+  
+  .materia-info {
+    margin-left: 24px;
+  }
+}
+
+// Dark theme support
+@media (prefers-color-scheme: dark) {
+  .materia-card {
+    background-color: #424242;
+    border-color: #616161;
+    
+    &.selected {
+      background-color: #1e3a5f;
+      border-color: #2196f3;
+    }
+    
+    &.disabled {
+      background-color: #303030;
+    }
+  }
+  
+  .progress-section {
+    background-color: #424242;
+  }
+  
+  .selection-summary {
+    background-color: #424242;
+  }
+}

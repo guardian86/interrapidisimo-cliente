@@ -31,7 +31,7 @@
             </mat-chip>
             <mat-chip color="accent" selected>
               <mat-icon>credit_card</mat-icon>
-              {{ resumenInscripcion()?.totalCreditos }} Créditos Totales
+              {{ getTotalCreditos() }} Créditos Totales
             </mat-chip>
             <mat-chip color="warn" selected>
               <mat-icon>group</mat-icon>
@@ -152,14 +152,13 @@
                 <mat-card *ngFor="let inscripcion of resumenInscripcion()?.inscripciones" class="enrollment-card" elevation="1">
                   <mat-card-content>
                     <div class="enrollment-header">
-                      <h3>{{ inscripcion.materia?.nombre }}</h3>
-                      <mat-chip color="primary" selected>{{ inscripcion.materia?.creditos }} créditos</mat-chip>
+                      <h3>{{ inscripcion.nombreMateria }}</h3>
+                      <mat-chip color="primary" selected>{{ inscripcion.creditos }} créditos</mat-chip>
                     </div>
                     
                     <div class="enrollment-details">
-                      <p><strong>Código:</strong> {{ inscripcion.materia?.codigo }}</p>
-                      <p><strong>Profesor:</strong> {{ inscripcion.profesor?.nombre }} {{ inscripcion.profesor?.apellido }}</p>
-                      <p><strong>Especialización:</strong> {{ inscripcion.profesor?.especializacion }}</p>
+                      <p><strong>Código:</strong> {{ inscripcion.codigoMateria }}</p>
+                      <p><strong>Profesor:</strong> {{ inscripcion.nombreProfesor }}</p>
                       <p><strong>Fecha de Inscripción:</strong> {{ formatDate(inscripcion.fechaInscripcion) }}</p>
                     </div>
                   </mat-card-content>

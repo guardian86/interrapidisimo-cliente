@@ -1,29 +1,41 @@
-export interface MateriaProfesor {
+// DTOs para respuestas de la API
+export interface MateriaProfesorDto {
   id: number;
   materiaId: number;
   profesorId: number;
   activo: boolean;
-  materia?: {
-    id: number;
-    nombre: string;
-    codigo: string;
-    creditos: number;
-  };
-  profesor?: {
-    id: number;
-    nombre: string;
-    apellido: string;
-    especializacion: string;
-  };
 }
 
-export interface CreateMateriaProfesortDto {
+export interface MateriaProfesorListDto {
+  id: number;
+  materiaId: number;
+  profesorId: number;
+  activo: boolean;
+}
+
+export interface MateriaProfesorDetailDto {
+  id: number;
+  materiaId: number;
+  nombreMateria: string;
+  codigoMateria: string;
+  creditosMateria: number;
+  profesorId: number;
+  nombreProfesor: string;
+  especializacionProfesor: string;
+  activo: boolean;
+}
+
+// DTOs para crear y actualizar
+export interface CreateMateriaProfesorDto {
   materiaId: number;
   profesorId: number;
 }
 
 export interface UpdateMateriaProfesorDto {
-  id: number;
-  materiaId: number;
-  profesorId: number;
+  activo: boolean;
 }
+
+// Alias para compatibilidad hacia atrás
+export interface MateriaProfesor extends MateriaProfesorDto {}
+
+export interface CreateMateriaProfesortDto extends CreateMateriaProfesorDto {}

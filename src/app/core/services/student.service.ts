@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Estudiante, CreateEstudianteDto, UpdateEstudianteDto } from '../models/estudiante.model';
+import { 
+  EstudianteDto, 
+  EstudianteListDto, 
+  EstudianteCreateDto, 
+  EstudianteUpdateDto,
+  EstudianteCompaneroDto
+} from '../models/estudiante.model';
 import { ApiResponse, PaginatedResponse } from '../interfaces/api-response.interface';
 import { API_ENDPOINTS } from '../settings/app.config';
 
@@ -15,33 +21,36 @@ export class EstudianteService {
   /**
    * Obtiene todos los estudiantes
    */
-  getEstudiantes(pageNumber: number = 1, pageSize: number = 10): Observable<ApiResponse<PaginatedResponse<Estudiante>>> {
-    const params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString());
-
-    return this.http.get<ApiResponse<PaginatedResponse<Estudiante>>>(API_ENDPOINTS.ESTUDIANTES, { params });
+  getEstudiantes(): Observable<ApiResponse<EstudianteListDto[]>> {
+    return this.http.get<ApiResponse<EstudianteListDto[]>>(API_ENDPOINTS.ESTUDIANTES);
   }
 
   /**
    * Obtiene un estudiante por ID
    */
-  getEstudianteById(id: number): Observable<ApiResponse<Estudiante>> {
-    return this.http.get<ApiResponse<Estudiante>>(`${API_ENDPOINTS.ESTUDIANTES}/${id}`);
+  getEstudianteById(id: number): Observable<ApiResponse<EstudianteDto>> {
+    return this.http.get<ApiResponse<EstudianteDto>>(`${API_ENDPOINTS.ESTUDIANTES}/${id}`);
+  }
+
+  /**
+   * Obtiene los compañeros de un estudiante
+   */
+  getCompaneros(estudianteId: number): Observable<ApiResponse<EstudianteCompaneroDto[]>> {
+    return this.http.get<ApiResponse<EstudianteCompaneroDto[]>>(`${API_ENDPOINTS.ESTUDIANTES}/${estudianteId}/companeros`);
   }
 
   /**
    * Crea un nuevo estudiante
    */
-  createEstudiante(estudiante: CreateEstudianteDto): Observable<ApiResponse<Estudiante>> {
-    return this.http.post<ApiResponse<Estudiante>>(API_ENDPOINTS.ESTUDIANTES, estudiante);
+  createEstudiante(estudiante: EstudianteCreateDto): Observable<ApiResponse<EstudianteDto>> {
+    return this.http.post<ApiResponse<EstudianteDto>>(API_ENDPOINTS.ESTUDIANTES, estudiante);
   }
 
   /**
    * Actualiza un estudiante existente
    */
-  updateEstudiante(id: number, estudiante: UpdateEstudianteDto): Observable<ApiResponse<Estudiante>> {
-    return this.http.put<ApiResponse<Estudiante>>(`${API_ENDPOINTS.ESTUDIANTES}/${id}`, estudiante);
+  updateEstudiante(id: number, estudiante: EstudianteUpdateDto): Observable<ApiResponse<EstudianteDto>> {
+    return this.http.put<ApiResponse<EstudianteDto>>(`${API_ENDPOINTS.ESTUDIANTES}/${id}`, estudiante);
   }
 
   /**
@@ -52,17 +61,10 @@ export class EstudianteService {
   }
 
   /**
-   * Busca estudiantes por nombre o email
+   * Busca estudiantes por nombre
    */
-  searchEstudiantes(searchTerm: string): Observable<ApiResponse<Estudiante[]>> {
-    const params = new HttpParams().set('search', searchTerm);
-    return this.http.get<ApiResponse<Estudiante[]>>(`${API_ENDPOINTS.ESTUDIANTES}/search`, { params });
-  }
-
-  /**
-   * Obtiene estudiantes activos únicamente
-   */
-  getEstudiantesActivos(): Observable<ApiResponse<Estudiante[]>> {
-    return this.http.get<ApiResponse<Estudiante[]>>(`${API_ENDPOINTS.ESTUDIANTES}/activos`);
+  searchEstudiantes(nombre: string): Observable<ApiResponse<EstudianteListDto[]>> {
+    const params = new HttpParams().set('nombre', nombre);
+    return this.http.get<ApiResponse<EstudianteListDto[]>>(API_ENDPOINTS.ESTUDIANTES_SEARCH, { params });
   }
 }

@@ -1,0 +1,276 @@
+.profesores-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-card {
+  margin-bottom: 24px;
+  
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #1976d2;
+    
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px;
+  gap: 16px;
+
+  p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+  }
+}
+
+.empty-card {
+  margin: 24px 0;
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: rgba(0, 0, 0, 0.3);
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      margin: 16px 0 8px 0;
+      color: rgba(0, 0, 0, 0.7);
+    }
+    
+    p {
+      margin-bottom: 24px;
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.profesores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.profesor-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  height: fit-content;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #1976d2;
+  }
+  
+  .profesor-avatar {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  
+  .profesor-nombre {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 4px;
+  }
+  
+  .profesor-especializacion {
+    font-size: 14px;
+    color: #ff9800;
+    font-weight: 500;
+    font-style: italic;
+  }
+  
+  .profesor-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    
+    .contacto-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(0, 0, 0, 0.7);
+        
+        mat-icon {
+          color: #757575;
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+        
+        span {
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .materias-info {
+      h4 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #1976d2;
+        font-size: 16px;
+        margin: 0 0 12px 0;
+        
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+      
+      .materias-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        
+        mat-chip {
+          background-color: #e8f5e8;
+          color: #2e7d32;
+          font-size: 12px;
+          height: 28px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+  
+  mat-card-actions {
+    gap: 8px;
+    
+    button {
+      flex: 1;
+      font-size: 12px;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+      }
+    }
+  }
+}
+
+.resumen-info {
+  mat-card {
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    color: white;
+    
+    .resumen-stats {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        
+        .number {
+          font-size: 32px;
+          font-weight: 700;
+          color: #ffffff;
+        }
+        
+        .label {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .profesores-container {
+    padding: 16px;
+  }
+  
+  .profesores-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .profesor-card {
+    .profesor-info {
+      gap: 16px;
+    }
+    
+    mat-card-actions {
+      flex-direction: column;
+      
+      button {
+        width: 100%;
+        margin: 2px 0;
+      }
+    }
+  }
+  
+  .resumen-stats {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profesor-card {
+    mat-card-header {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+    
+    .profesor-info {
+      .contacto-info {
+        .info-item {
+          justify-content: center;
+        }
+      }
+      
+      .materias-info {
+        text-align: center;
+        
+        .materias-chips {
+          justify-content: center;
+        }
+      }
+    }
+  }
+}

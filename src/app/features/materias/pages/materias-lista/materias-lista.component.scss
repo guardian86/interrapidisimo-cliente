@@ -1,0 +1,206 @@
+.materias-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-card {
+  margin-bottom: 24px;
+  
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #1976d2;
+    
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px;
+  gap: 16px;
+
+  p {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+  }
+}
+
+.empty-card {
+  margin: 24px 0;
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: rgba(0, 0, 0, 0.3);
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      margin: 16px 0 8px 0;
+      color: rgba(0, 0, 0, 0.7);
+    }
+    
+    p {
+      margin-bottom: 24px;
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.materias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.materia-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #1976d2;
+  }
+  
+  .materia-nombre {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 4px;
+  }
+  
+  .materia-codigo {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.6);
+    font-weight: 500;
+  }
+  
+  .materia-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    .creditos-info {
+      mat-chip {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        font-weight: 500;
+        
+        mat-icon {
+          color: #ffa726;
+        }
+      }
+    }
+    
+    .profesor-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(0, 0, 0, 0.7);
+      
+      mat-icon {
+        color: #757575;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+      
+      span {
+        font-weight: 500;
+      }
+    }
+    
+    .descripcion {
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+}
+
+.resumen-info {
+  mat-card {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+    
+    .resumen-stats {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        
+        .number {
+          font-size: 32px;
+          font-weight: 700;
+          color: #ffffff;
+        }
+        
+        .label {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .materias-container {
+    padding: 16px;
+  }
+  
+  .materias-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .resumen-stats {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .materia-card {
+    .materia-info {
+      gap: 8px;
+    }
+  }
+  
+  .header-card {
+    mat-card-title {
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
+    }
+  }
+}

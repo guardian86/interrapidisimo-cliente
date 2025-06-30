@@ -44,6 +44,16 @@
           {{ getErrorMessage('telefono') }}
         </mat-error>
       </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de Nacimiento</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="fechaNacimiento" placeholder="Seleccione la fecha">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="estudianteForm.get('fechaNacimiento')?.invalid && estudianteForm.get('fechaNacimiento')?.touched">
+          {{ getErrorMessage('fechaNacimiento') }}
+        </mat-error>
+      </mat-form-field>
     </form>
   </mat-card-content>
 

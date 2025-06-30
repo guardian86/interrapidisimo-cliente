@@ -5,15 +5,35 @@ export const APP_CONFIG = {
   TIMEOUT: 30000,
   MAX_CREDITOS: 9, // 3 materias x 3 créditos cada una
   MAX_MATERIAS: 3,
-  CREDITOS_POR_MATERIA: 3
+  CREDITOS_POR_MATERIA: 3,
+  // Configuración para producción con API real
+  DEVELOPMENT_MODE: false, // API real funcionando
+  USE_MOCK_DATA: false, // Usar datos de la API
+  SHOW_API_ERRORS: true // Mostrar errores de API reales
 };
 
 export const API_ENDPOINTS = {
-  ESTUDIANTES: '/estudiantes',
-  PROFESORES: '/profesores',
-  MATERIAS: '/materias',
-  INSCRIPCIONES: '/inscripciones',
-  MATERIAS_PROFESORES: '/materias-profesores'
+  // Endpoints de Estudiantes
+  ESTUDIANTES: '/Estudiante',
+  ESTUDIANTES_SEARCH: '/Estudiante/buscar',
+  
+  // Endpoints de Profesores  
+  PROFESORES: '/Profesor',
+  
+  // Endpoints de Materias
+  MATERIAS: '/Materia',
+  
+  // Endpoints de Materias-Profesores
+  MATERIAS_PROFESORES: '/MateriaProfesor',
+  MATERIAS_PROFESORES_BY_MATERIA: '/MateriaProfesor/materia',
+  MATERIAS_PROFESORES_BY_PROFESOR: '/MateriaProfesor/profesor',
+  
+  // Endpoints de Inscripciones
+  INSCRIPCIONES: '/Inscripcion',
+  INSCRIPCIONES_BY_ESTUDIANTE: '/Inscripcion/estudiante',
+  INSCRIPCIONES_BY_MATERIA: '/Inscripcion/materia',
+  INSCRIPCIONES_COMPANEROS: '/Inscripcion/companeros',
+  INSCRIPCIONES_VALIDAR: '/Inscripcion/validar'
 };
 
 export const VALIDATION_MESSAGES = {
