@@ -8,7 +8,6 @@ import {
   ProfesorDisponibleDto,
   ResumenInscripcionEstudiante
 } from '../models/inscripcion.model';
-import { ApiResponse } from '../interfaces/api-response.interface';
 import { API_ENDPOINTS } from '../settings/app.config';
 
 @Injectable({
@@ -21,66 +20,43 @@ export class InscripcionService {
   /**
    * Crea una nueva inscripción
    */
-  createInscripcion(inscripcion: InscripcionCreateDto): Observable<ApiResponse<InscripcionResponseDto>> {
-    return this.http.post<ApiResponse<InscripcionResponseDto>>(API_ENDPOINTS.INSCRIPCIONES, inscripcion);
+  createInscripcion(inscripcion: InscripcionCreateDto): Observable<InscripcionResponseDto> {
+    return this.http.post<InscripcionResponseDto>(API_ENDPOINTS.INSCRIPCIONES, inscripcion);
   }
 
   /**
    * Obtiene las materias disponibles para inscripción de un estudiante
    */
-  getMateriasDisponibles(estudianteId: number): Observable<ApiResponse<MateriasDisponiblesParaEstudianteDto[]>> {
-    return this.http.get<ApiResponse<MateriasDisponiblesParaEstudianteDto[]>>(`${API_ENDPOINTS.MATERIAS}/disponibles/${estudianteId}`);
+  getMateriasDisponibles(estudianteId: number): Observable<MateriasDisponiblesParaEstudianteDto[]> {
+    return this.http.get<MateriasDisponiblesParaEstudianteDto[]>(`${API_ENDPOINTS.MATERIAS}/disponibles/${estudianteId}`);
   }
 
   /**
-   * Obtiene profesores disponibles para una materia específica
+   * Elimina una inscripción por parámetros específicos (según Swagger: DELETE /api/Inscripciones/{estudianteId}/{materiaId}/{profesorId})
    */
-  getProfesoresDisponibles(materiaId: number): Observable<ApiResponse<ProfesorDisponibleDto[]>> {
-    return this.http.get<ApiResponse<ProfesorDisponibleDto[]>>(`${API_ENDPOINTS.PROFESORES}/disponibles/${materiaId}`);
-  }
-
-  /**
-   * Elimina una inscripción por parámetros específicos
-   */
-  deleteInscripcionByParams(estudianteId: number, materiaId: number, profesorId: number): Observable<ApiResponse<void>> {
-    const params = new HttpParams()
-      .set('estudianteId', estudianteId.toString())
-      .set('materiaId', materiaId.toString())
-      .set('profesorId', profesorId.toString());
-    
-    return this.http.delete<ApiResponse<void>>(API_ENDPOINTS.INSCRIPCIONES, { params });
-  }
-
-  /**
-   * Elimina una inscripción por ID
-   */
-  deleteInscripcionById(inscripcionId: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${API_ENDPOINTS.INSCRIPCIONES}/${inscripcionId}`);
+  deleteInscripcionByParams(estudianteId: number, materiaId: number, profesorId: number): Observable<void> {
+    return this.http.delete<void>(`${API_ENDPOINTS.INSCRIPCIONES}/${estudianteId}/${materiaId}/${profesorId}`);
   }
 
   /**
    * Valida si un estudiante puede inscribirse en una materia con un profesor específico
+   * Según Swagger: GET /api/Inscripciones/validar/{estudianteId}/{materiaId}/{profesorId}
    */
-  validarInscripcion(estudianteId: number, materiaId: number, profesorId: number): Observable<ApiResponse<any>> {
-    const params = new HttpParams()
-      .set('estudianteId', estudianteId.toString())
-      .set('materiaId', materiaId.toString())
-      .set('profesorId', profesorId.toString());
-    
-    return this.http.get<ApiResponse<any>>(API_ENDPOINTS.INSCRIPCIONES_VALIDAR, { params });
-  }
-
-  /**
-   * Obtiene el resumen de inscripciones y compañeros de un estudiante
-   */
-  getResumenInscripcionEstudiante(estudianteId: number): Observable<ApiResponse<ResumenInscripcionEstudiante>> {
-    return this.http.get<ApiResponse<ResumenInscripcionEstudiante>>(`${API_ENDPOINTS.INSCRIPCIONES_COMPANEROS}/${estudianteId}`);
+  validarInscripcion(estudianteId: number, materiaId: number, profesorId: number): Observable<any> {
+    return this.http.get<any>(`${API_ENDPOINTS.INSCRIPCIONES_VALIDAR}/${estudianteId}/${materiaId}/${profesorId}`);
   }
 
   /**
    * Obtiene las inscripciones de un estudiante específico
    */
-  getInscripcionesByEstudiante(estudianteId: number): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${API_ENDPOINTS.INSCRIPCIONES_BY_ESTUDIANTE}/${estudianteId}`);
+  getInscripcionesByEstudiante(estudianteId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${API_ENDPOINTS.INSCRIPCIONES_BY_ESTUDIANTE}/${estudianteId}`);
+  }
+
+  /**
+   * Obtiene el resumen de inscripciones de un estudiante
+   */
+  getResumenInscripcion(estudianteId: number): Observable<ResumenInscripcionEstudiante> {
+    return this.http.get<ResumenInscripcionEstudiante>(`${API_ENDPOINTS.INSCRIPCIONES_RESUMEN}/${estudianteId}`);
   }
 }

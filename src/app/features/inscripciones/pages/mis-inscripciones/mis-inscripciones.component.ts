@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { EstudianteService } from '../../../../core/services/student.service';
+import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { InscripcionService } from '../../../../core/services/inscripcion.service';
 import { EstudianteListDto } from '../../../../core/models/estudiante.model';
 import { InscripcionDetailDto } from '../../../../core/models/inscripcion.model';
@@ -133,25 +133,18 @@ export class MisInscripcionesComponent implements OnInit {
   onEliminarInscripcion(inscripcion: InscripcionDetailDto): void {
     if (confirm(`¿Estás seguro de que deseas eliminar la inscripción a "${inscripcion.nombreMateria}"?`)) {
       this.inscripcionService.deleteInscripcionByParams(inscripcion.estudianteId, inscripcion.materiaId, inscripcion.profesorId).subscribe({
-        next: (response) => {
-          if (response && response.success) {
-            this.snackBar.open('Inscripción eliminada exitosamente', 'Cerrar', {
-              duration: 3000,
-              panelClass: ['success-snackbar']
-            });
-            // Recargar inscripciones
-            if (this.estudianteSeleccionado()) {
-              this.loadInscripciones(this.estudianteSeleccionado()!);
-            }
-          } else {
-            this.snackBar.open('Error al eliminar inscripción: ' + (response?.message || 'Error desconocido'), 'Cerrar', {
-              duration: 4000,
-              panelClass: ['error-snackbar']
-            });
+        next: () => {
+          this.snackBar.open('Inscripción eliminada exitosamente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          // Recargar inscripciones
+          if (this.estudianteSeleccionado()) {
+            this.loadInscripciones(this.estudianteSeleccionado()!);
           }
         },
-        error: (error) => {
-          console.error('Error deleting inscripcion:', error);
+        error: (error: any) => {
+          console.error('Error al eliminar inscripción:', error);
           this.snackBar.open('Error al eliminar inscripción', 'Cerrar', {
             duration: 4000,
             panelClass: ['error-snackbar']

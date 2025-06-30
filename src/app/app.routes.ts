@@ -7,8 +7,13 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'test-api',
+    loadComponent: () => import('./shared/components/api-test.component').then(m => m.ApiTestComponent),
+    title: 'Prueba API'
+  },
+  {
     path: 'estudiantes',
-    loadChildren: () => import('./features/students/students.routes').then(m => m.STUDENTS_ROUTES),
+    loadChildren: () => import('./features/estudiantes/estudiantes.routes').then(m => m.ESTUDIANTES_ROUTES),
     title: 'Sistema de Registro de Estudiantes'
   },
   {

@@ -41,7 +41,7 @@
         <ng-container matColumnDef="nombre">
           <mat-header-cell *matHeaderCellDef>Nombre</mat-header-cell>
           <mat-cell *matCellDef="let estudiante">
-            <strong>{{estudiante.nombre}} {{estudiante.apellido}}</strong>
+            <strong>{{estudiante.nombreCompleto || 'Nombre no disponible'}}</strong>
           </mat-cell>
         </ng-container>
 
@@ -50,15 +50,17 @@
           <mat-cell *matCellDef="let estudiante">{{estudiante.email}}</mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="telefono">
-          <mat-header-cell *matHeaderCellDef>Teléfono</mat-header-cell>
-          <mat-cell *matCellDef="let estudiante">{{estudiante.telefono}}</mat-cell>
+        <ng-container matColumnDef="creditos">
+          <mat-header-cell *matHeaderCellDef>Créditos</mat-header-cell>
+          <mat-cell *matCellDef="let estudiante">{{estudiante.creditosSeleccionados}}</mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="fechaRegistro">
-          <mat-header-cell *matHeaderCellDef>Fecha Registro</mat-header-cell>
+        <ng-container matColumnDef="estado">
+          <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
           <mat-cell *matCellDef="let estudiante">
-            {{estudiante.fechaRegistro | date:'short'}}
+            <mat-chip [color]="estudiante.isActive ? 'primary' : 'warn'" selected>
+              {{estudiante.isActive ? 'Activo' : 'Inactivo'}}
+            </mat-chip>
           </mat-cell>
         </ng-container>
 

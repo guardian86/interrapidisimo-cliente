@@ -37,13 +37,23 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Teléfono</mat-label>
-        <input matInput formControlName="telefono" placeholder="Ingrese el teléfono">
-        <mat-error *ngIf="estudianteForm.get('telefono')?.invalid && estudianteForm.get('telefono')?.touched">
-          {{ getErrorMessage('telefono') }}
-        </mat-error>
-      </mat-form-field>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="telefono" placeholder="Ingrese el teléfono">
+          <mat-error *ngIf="estudianteForm.get('telefono')?.invalid && estudianteForm.get('telefono')?.touched">
+            {{ getErrorMessage('telefono') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Documento</mat-label>
+          <input matInput formControlName="documento" placeholder="Ingrese el documento">
+          <mat-error *ngIf="estudianteForm.get('documento')?.invalid && estudianteForm.get('documento')?.touched">
+            {{ getErrorMessage('documento') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
 
       <mat-form-field appearance="outline">
         <mat-label>Fecha de Nacimiento</mat-label>

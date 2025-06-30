@@ -43,10 +43,10 @@
         <mat-card class="profesor-card" [routerLink]="['/profesores', profesor.id]">
           <mat-card-header>
             <div mat-card-avatar class="profesor-avatar">
-              {{ getAvatar(profesor.nombre, profesor.apellido) }}
+              {{ getAvatar(profesor.nombreCompleto) }}
             </div>
             <mat-card-title class="profesor-nombre">
-              {{ profesor.nombre }} {{ profesor.apellido }}
+              {{ profesor.nombreCompleto }}
             </mat-card-title>
             <mat-card-subtitle class="profesor-especializacion">
               {{ profesor.especialidad }}
@@ -55,25 +55,14 @@
           
           <mat-card-content>
             <div class="profesor-info">
-              <div class="contacto-info">
-                <div class="info-item">
-                  <mat-icon>email</mat-icon>
-                  <span>{{ profesor.email }}</span>
-                </div>
-                <div class="info-item">
-                  <mat-icon>phone</mat-icon>
-                  <span>{{ profesor.telefono }}</span>
-                </div>
-              </div>
-              
               <div class="materias-info">
-                <h4>
-                  <mat-icon>book</mat-icon>
-                  Materias que imparte
-                </h4>
-                <div class="materias-chips">
-                  <mat-chip>Materia 1</mat-chip>
-                  <mat-chip>Materia 2</mat-chip>
+                <div class="info-item">
+                  <mat-icon>school</mat-icon>
+                  <span>{{ profesor.numeroMaterias }} materias</span>
+                </div>
+                <div class="info-item">
+                  <mat-icon>star</mat-icon>
+                  <span>{{ profesor.especialidad }}</span>
                 </div>
               </div>
             </div>

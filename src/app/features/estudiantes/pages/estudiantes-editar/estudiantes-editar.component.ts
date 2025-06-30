@@ -11,7 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { EstudianteService } from '../../../../core/services/student.service';
+import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { UpdateEstudianteDto, EstudianteDto } from '../../../../core/models/estudiante.model';
 
 @Component({
@@ -64,26 +64,18 @@ export class EstudiantesEditarComponent implements OnInit {
   loadEstudiante(): void {
     this.loading.set(true);
     this.estudianteService.getEstudianteById(this.estudianteId).subscribe({
-      next: (response) => {
-        if (response && response.success && response.data) {
-          const estudiante = response.data;
-          this.estudiante.set(estudiante);
-          
-          // Cargar datos en el formulario
-          this.estudianteForm.patchValue({
-            nombre: estudiante.nombre,
-            apellido: estudiante.apellido,
-            email: estudiante.email,
-            telefono: estudiante.telefono,
-            fechaNacimiento: new Date(estudiante.fechaNacimiento)
-          });
-        } else {
-          this.snackBar.open('No se pudo cargar la información del estudiante', 'Cerrar', {
-            duration: 4000,
-            panelClass: ['error-snackbar']
-          });
-          this.router.navigate(['/estudiantes']);
-        }
+      next: (estudiante: EstudianteDto) => {
+        console.log('Estudiante recibido:', estudiante);
+        this.estudiante.set(estudiante);
+        
+        // Cargar datos en el formulario
+        this.estudianteForm.patchValue({
+          nombre: estudiante.nombre,
+          apellido: estudiante.apellido,
+          email: estudiante.email,
+          telefono: estudiante.telefono,
+          fechaNacimiento: new Date(estudiante.fechaNacimiento)
+        });
         this.loading.set(false);
       },
       error: (error) => {
@@ -109,19 +101,13 @@ export class EstudiantesEditarComponent implements OnInit {
       };
 
       this.estudianteService.updateEstudiante(this.estudianteId, estudianteData).subscribe({
-        next: (response) => {
-          if (response && response.success) {
-            this.snackBar.open('Estudiante actualizado exitosamente', 'Cerrar', {
-              duration: 3000,
-              panelClass: ['success-snackbar']
-            });
-            this.router.navigate(['/estudiantes']);
-          } else {
-            this.snackBar.open('Error al actualizar estudiante: ' + (response?.message || 'Error desconocido'), 'Cerrar', {
-              duration: 4000,
-              panelClass: ['error-snackbar']
-            });
-          }
+        next: (estudianteActualizado: EstudianteDto) => {
+          console.log('Estudiante actualizado:', estudianteActualizado);
+          this.snackBar.open('Estudiante actualizado exitosamente', 'Cerrar', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.router.navigate(['/estudiantes']);
           this.loading.set(false);
         },
         error: (error) => {

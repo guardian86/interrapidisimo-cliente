@@ -9,7 +9,6 @@ import {
   ProfesorDisponibleDto,
   MateriasDisponiblesParaEstudianteDto
 } from '../models/materia.model';
-import { ApiResponse } from '../interfaces/api-response.interface';
 import { API_ENDPOINTS } from '../settings/app.config';
 
 @Injectable({
@@ -22,49 +21,49 @@ export class MateriaService {
   /**
    * Obtiene todas las materias
    */
-  getMaterias(): Observable<ApiResponse<MateriaListDto[]>> {
-    return this.http.get<ApiResponse<MateriaListDto[]>>(API_ENDPOINTS.MATERIAS);
+  getMaterias(): Observable<MateriaListDto[]> {
+    return this.http.get<MateriaListDto[]>(API_ENDPOINTS.MATERIAS);
   }
 
   /**
    * Obtiene una materia por ID
    */
-  getMateriaById(id: number): Observable<ApiResponse<MateriaDto>> {
-    return this.http.get<ApiResponse<MateriaDto>>(`${API_ENDPOINTS.MATERIAS}/${id}`);
+  getMateriaById(id: number): Observable<MateriaDto> {
+    return this.http.get<MateriaDto>(`${API_ENDPOINTS.MATERIAS}/${id}`);
   }
 
   /**
-   * Obtiene las materias disponibles para inscripción
+   * Obtiene las materias disponibles para un estudiante específico
    */
-  getMateriasDisponibles(): Observable<ApiResponse<MateriasDisponiblesParaEstudianteDto[]>> {
-    return this.http.get<ApiResponse<MateriasDisponiblesParaEstudianteDto[]>>(`${API_ENDPOINTS.MATERIAS}/disponibles`);
+  getMateriasDisponiblesParaEstudiante(estudianteId: number): Observable<MateriasDisponiblesParaEstudianteDto[]> {
+    return this.http.get<MateriasDisponiblesParaEstudianteDto[]>(`${API_ENDPOINTS.MATERIAS}/disponibles/${estudianteId}`);
   }
 
   /**
    * Crea una nueva materia
    */
-  createMateria(materia: MateriaCreateDto): Observable<ApiResponse<MateriaDto>> {
-    return this.http.post<ApiResponse<MateriaDto>>(API_ENDPOINTS.MATERIAS, materia);
+  createMateria(materia: MateriaCreateDto): Observable<MateriaDto> {
+    return this.http.post<MateriaDto>(API_ENDPOINTS.MATERIAS, materia);
   }
 
   /**
    * Actualiza una materia existente
    */
-  updateMateria(id: number, materia: MateriaUpdateDto): Observable<ApiResponse<MateriaDto>> {
-    return this.http.put<ApiResponse<MateriaDto>>(`${API_ENDPOINTS.MATERIAS}/${id}`, materia);
+  updateMateria(id: number, materia: MateriaUpdateDto): Observable<MateriaDto> {
+    return this.http.put<MateriaDto>(`${API_ENDPOINTS.MATERIAS}/${id}`, materia);
   }
 
   /**
    * Elimina una materia
    */
-  deleteMateria(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${API_ENDPOINTS.MATERIAS}/${id}`);
+  deleteMateria(id: number): Observable<void> {
+    return this.http.delete<void>(`${API_ENDPOINTS.MATERIAS}/${id}`);
   }
 
   /**
-   * Obtiene profesores disponibles para una materia específica
+   * Verifica si una materia existe
    */
-  getProfesoresDisponibles(materiaId: number): Observable<ApiResponse<ProfesorDisponibleDto[]>> {
-    return this.http.get<ApiResponse<ProfesorDisponibleDto[]>>(`${API_ENDPOINTS.MATERIAS}/${materiaId}/profesores`);
+  existsMateria(id: number): Observable<boolean> {
+    return this.http.get<boolean>(`${API_ENDPOINTS.MATERIAS}/${id}/exists`);
   }
 }

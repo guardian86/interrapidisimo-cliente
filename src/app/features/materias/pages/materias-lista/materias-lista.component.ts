@@ -9,7 +9,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MateriaService } from '../../../../core/services/materia.service';
-import { Materia } from '../../../../core/models/materia.model';
+import { Materia, MateriaListDto } from '../../../../core/models/materia.model';
 
 @Component({
   selector: 'app-materias-lista',
@@ -29,7 +29,7 @@ import { Materia } from '../../../../core/models/materia.model';
   styleUrls: ['./materias-lista.component.scss']
 })
 export class MateriasListaComponent implements OnInit {
-  materias = signal<Materia[]>([]);
+  materias = signal<MateriaListDto[]>([]);
   loading = signal(false);
 
   constructor(
@@ -45,17 +45,10 @@ export class MateriasListaComponent implements OnInit {
     this.loading.set(true);
     
     this.materiaService.getMaterias().subscribe({
-      next: (response: any) => {
-        if (response && response.success && response.data) {
-          const materias = Array.isArray(response.data) ? response.data : response.data.data || [];
-          this.materias.set(materias);
-          console.log('Materias cargadas:', materias.length);
-        } else if (response && Array.isArray(response)) {
-          this.materias.set(response);
-        } else {
-          console.warn('Respuesta sin datos válidos:', response);
-          this.materias.set([]);
-        }
+      next: (materias: MateriaListDto[]) => {
+        console.log('Materias recibidas:', materias);
+        this.materias.set(materias);
+        console.log('Materias cargadas:', materias.length);
         this.loading.set(false);
       },
       error: (error) => {
@@ -86,7 +79,7 @@ export class MateriasListaComponent implements OnInit {
     });
   }
 
-  getProfesorNombre(materia: Materia): string {
+  getProfesorNombre(materia: MateriaListDto): string {
     // Temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
     return 'Ver profesores disponibles';
   }

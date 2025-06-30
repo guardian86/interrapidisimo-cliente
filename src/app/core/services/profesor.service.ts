@@ -9,7 +9,6 @@ import {
   ProfesorDisponibleDto,
   MateriaQueDict
 } from '../models/profesor.model';
-import { ApiResponse } from '../interfaces/api-response.interface';
 import { API_ENDPOINTS } from '../settings/app.config';
 
 @Injectable({
@@ -22,49 +21,42 @@ export class ProfesorService {
   /**
    * Obtiene todos los profesores
    */
-  getProfesores(): Observable<ApiResponse<ProfesorListDto[]>> {
-    return this.http.get<ApiResponse<ProfesorListDto[]>>(API_ENDPOINTS.PROFESORES);
+  getProfesores(): Observable<ProfesorListDto[]> {
+    return this.http.get<ProfesorListDto[]>(API_ENDPOINTS.PROFESORES);
   }
 
   /**
    * Obtiene un profesor por ID
    */
-  getProfesorById(id: number): Observable<ApiResponse<ProfesorDto>> {
-    return this.http.get<ApiResponse<ProfesorDto>>(`${API_ENDPOINTS.PROFESORES}/${id}`);
-  }
-
-  /**
-   * Obtiene profesores disponibles para una materia
-   */
-  getProfesoresDisponibles(materiaId: number): Observable<ApiResponse<ProfesorDisponibleDto[]>> {
-    return this.http.get<ApiResponse<ProfesorDisponibleDto[]>>(`${API_ENDPOINTS.PROFESORES}/disponibles/${materiaId}`);
+  getProfesorById(id: number): Observable<ProfesorDto> {
+    return this.http.get<ProfesorDto>(`${API_ENDPOINTS.PROFESORES}/${id}`);
   }
 
   /**
    * Crea un nuevo profesor
    */
-  createProfesor(profesor: ProfesorCreateDto): Observable<ApiResponse<ProfesorDto>> {
-    return this.http.post<ApiResponse<ProfesorDto>>(API_ENDPOINTS.PROFESORES, profesor);
+  createProfesor(profesor: ProfesorCreateDto): Observable<ProfesorDto> {
+    return this.http.post<ProfesorDto>(API_ENDPOINTS.PROFESORES, profesor);
   }
 
   /**
    * Actualiza un profesor existente
    */
-  updateProfesor(id: number, profesor: ProfesorUpdateDto): Observable<ApiResponse<ProfesorDto>> {
-    return this.http.put<ApiResponse<ProfesorDto>>(`${API_ENDPOINTS.PROFESORES}/${id}`, profesor);
+  updateProfesor(id: number, profesor: ProfesorUpdateDto): Observable<ProfesorDto> {
+    return this.http.put<ProfesorDto>(`${API_ENDPOINTS.PROFESORES}/${id}`, profesor);
   }
 
   /**
    * Elimina un profesor
    */
-  deleteProfesor(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${API_ENDPOINTS.PROFESORES}/${id}`);
+  deleteProfesor(id: number): Observable<void> {
+    return this.http.delete<void>(`${API_ENDPOINTS.PROFESORES}/${id}`);
   }
 
   /**
-   * Obtiene las materias que dicta un profesor
+   * Verifica si un profesor existe
    */
-  getMateriasByProfesor(profesorId: number): Observable<ApiResponse<MateriaQueDict[]>> {
-    return this.http.get<ApiResponse<MateriaQueDict[]>>(`${API_ENDPOINTS.MATERIAS_PROFESORES_BY_PROFESOR}/${profesorId}`);
+  existsProfesor(id: number): Observable<boolean> {
+    return this.http.get<boolean>(`${API_ENDPOINTS.PROFESORES}/${id}/exists`);
   }
 }

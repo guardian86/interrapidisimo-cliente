@@ -12,12 +12,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { EstudianteService } from '../../../../core/services/student.service';
+import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { MateriaService } from '../../../../core/services/materia.service';
 import { InscripcionService } from '../../../../core/services/inscripcion.service';
 import { EstudianteListDto } from '../../../../core/models/estudiante.model';
-import { MateriasDisponiblesParaEstudianteDto, ProfesorDisponibleDto } from '../../../../core/models/materia.model';
-import { InscripcionCreateDto } from '../../../../core/models/inscripcion.model';
+import { MateriasDisponiblesParaEstudianteDto, ProfesorDisponibleDto, MateriaListDto } from '../../../../core/models/materia.model';
+import { InscripcionCreateDto, InscripcionResponseDto } from '../../../../core/models/inscripcion.model';
 
 @Component({
   selector: 'app-estudiantes-inscripcion',
@@ -66,15 +66,25 @@ export class EstudiantesInscripcionComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEstudiantes();
-    this.loadMateriasDisponibles();
+    // Las materias se cargarán cuando se seleccione un estudiante
+  }
+
+  onEstudianteSelectionChange(estudianteId: number): void {
+    if (estudianteId) {
+      console.log('Estudiante seleccionado:', estudianteId);
+      this.loadMateriasDisponiblesParaEstudiante(estudianteId);
+      // Limpiar selecciones previas
+      this.selectedMaterias.set([]);
+      this.profesoresSeleccionados.set({});
+      this.enrollmentForm.patchValue({ materiaIds: [] });
+    }
   }
 
   loadEstudiantes(): void {
     this.estudianteService.getEstudiantes().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.estudiantes.set(response.data);
-        }
+      next: (estudiantes: EstudianteListDto[]) => {
+        this.estudiantes.set(estudiantes);
+        console.log('Estudiantes cargados:', estudiantes.length);
       },
       error: (error) => {
         console.error('Error loading students:', error);
@@ -88,18 +98,20 @@ export class EstudiantesInscripcionComponent implements OnInit {
     });
   }
 
-  loadMateriasDisponibles(): void {
-    // Para simplificar, cargamos todas las materias disponibles
-    // En un escenario real, esto podría depender del estudiante seleccionado
-    this.materiaService.getMateriasDisponibles().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.materias.set(response.data);
-        }
+
+
+  loadMateriasDisponiblesParaEstudiante(estudianteId: number): void {
+    this.loading.set(true);
+    this.materiaService.getMateriasDisponiblesParaEstudiante(estudianteId).subscribe({
+      next: (materiasDisponibles: MateriasDisponiblesParaEstudianteDto[]) => {
+        this.materias.set(materiasDisponibles);
+        console.log('Materias disponibles para estudiante cargadas:', materiasDisponibles.length);
+        this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error loading available subjects:', error);
-        this.snackBar.open('Error al cargar materias disponibles', 'Cerrar', {
+        console.error('Error loading available subjects for student:', error);
+        this.loading.set(false);
+        this.snackBar.open('Error al cargar materias disponibles para el estudiante', 'Cerrar', {
           duration: 3000,
           horizontalPosition: 'right',
           verticalPosition: 'bottom',
@@ -229,12 +241,13 @@ export class EstudiantesInscripcionComponent implements OnInit {
 
     const inscripcion = inscripciones[index];
     this.inscripcionService.createInscripcion(inscripcion).subscribe({
-      next: (response) => {
-        if (response.success && response.data?.exitoso) {
+      next: (response: InscripcionResponseDto) => {
+        console.log('Respuesta de inscripción:', response);
+        if (response.exitoso) {
           // Continuar con la siguiente inscripción
           this.processInscripciones(inscripciones, index + 1);
         } else {
-          const mensaje = response.data?.mensaje || response.message || 'Error en la inscripción';
+          const mensaje = response.mensaje || 'Error en la inscripción';
           this.handleInscripcionError(mensaje);
         }
       },

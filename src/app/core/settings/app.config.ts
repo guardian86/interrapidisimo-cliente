@@ -1,39 +1,41 @@
 export const APP_CONFIG = {
-  API_URL: 'http://localhost:5099/api',
+  API_URL: 'https://localhost:7130/api', // URL directa al WebAPI con HTTPS
   APP_NAME: 'Sistema de Registro de Estudiantes - InterRapidísimo',
   VERSION: '1.0.0',
   TIMEOUT: 30000,
   MAX_CREDITOS: 9, // 3 materias x 3 créditos cada una
   MAX_MATERIAS: 3,
   CREDITOS_POR_MATERIA: 3,
-  // Configuración para producción con API real
-  DEVELOPMENT_MODE: false, // API real funcionando
-  USE_MOCK_DATA: false, // Usar datos de la API
+  // Configuración para desarrollo con WebAPI real
+  DEVELOPMENT_MODE: true, // Habilitar modo desarrollo
+  USE_MOCK_DATA: false, // Usar endpoints reales del WebAPI
   SHOW_API_ERRORS: true // Mostrar errores de API reales
 };
 
 export const API_ENDPOINTS = {
-  // Endpoints de Estudiantes
-  ESTUDIANTES: '/Estudiante',
-  ESTUDIANTES_SEARCH: '/Estudiante/buscar',
+  // Endpoints de Estudiantes (según Swagger)
+  ESTUDIANTES: '/Estudiantes',
+  ESTUDIANTES_SEARCH: '/Estudiantes/buscar',
+  ESTUDIANTES_COMPANEROS: '/Estudiantes', // Base para companeros: /{estudianteId}/companeros/materia/{materiaId}
   
-  // Endpoints de Profesores  
-  PROFESORES: '/Profesor',
+  // Endpoints de Profesores (según Swagger)
+  PROFESORES: '/Profesores',
   
-  // Endpoints de Materias
-  MATERIAS: '/Materia',
+  // Endpoints de Materias (según Swagger)
+  MATERIAS: '/Materias',
   
   // Endpoints de Materias-Profesores
   MATERIAS_PROFESORES: '/MateriaProfesor',
   MATERIAS_PROFESORES_BY_MATERIA: '/MateriaProfesor/materia',
   MATERIAS_PROFESORES_BY_PROFESOR: '/MateriaProfesor/profesor',
   
-  // Endpoints de Inscripciones
-  INSCRIPCIONES: '/Inscripcion',
-  INSCRIPCIONES_BY_ESTUDIANTE: '/Inscripcion/estudiante',
-  INSCRIPCIONES_BY_MATERIA: '/Inscripcion/materia',
-  INSCRIPCIONES_COMPANEROS: '/Inscripcion/companeros',
-  INSCRIPCIONES_VALIDAR: '/Inscripcion/validar'
+  // Endpoints de Inscripciones (según Swagger)
+  INSCRIPCIONES: '/Inscripciones',
+  INSCRIPCIONES_BY_ESTUDIANTE: '/Inscripciones/estudiante',
+  INSCRIPCIONES_BY_MATERIA: '/Inscripciones/materia',
+  INSCRIPCIONES_COMPANEROS: '/Estudiantes', // Para compañeros se usa el endpoint de estudiantes
+  INSCRIPCIONES_VALIDAR: '/Inscripciones/validar',
+  INSCRIPCIONES_RESUMEN: '/Inscripciones/resumen'
 };
 
 export const VALIDATION_MESSAGES = {

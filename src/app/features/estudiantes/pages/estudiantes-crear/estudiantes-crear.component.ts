@@ -11,7 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { EstudianteService } from '../../../../core/services/student.service';
+import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { EstudianteCreateDto } from '../../../../core/models/estudiante.model';
 
 @Component({
@@ -55,17 +55,39 @@ export class EstudiantesCrearComponent {
   }
 
   onSubmit(): void {
+    console.log('=== SUBMITTING FORM ===');
+    console.log('Form valid:', this.estudianteForm.valid);
+    console.log('Form value:', this.estudianteForm.value);
+    console.log('Form errors:', this.getFormErrors());
+    
     if (this.estudianteForm.valid) {
       this.loading.set(true);
       const formValue = this.estudianteForm.value;
+      
+      // Formatear fecha correctamente
+      let fechaNacimiento = formValue.fechaNacimiento;
+      if (fechaNacimiento instanceof Date) {
+        fechaNacimiento = fechaNacimiento.toISOString().split('T')[0]; // YYYY-MM-DD format
+      } else if (typeof fechaNacimiento === 'string') {
+        fechaNacimiento = new Date(fechaNacimiento).toISOString().split('T')[0];
+      }
+
       const estudianteData: EstudianteCreateDto = {
-        ...formValue,
-        fechaNacimiento: new Date(formValue.fechaNacimiento).toISOString()
+        nombre: formValue.nombre,
+        apellido: formValue.apellido,
+        email: formValue.email,
+        telefono: formValue.telefono,
+        fechaNacimiento: fechaNacimiento,
+        documento: formValue.documento
       };
+
+      console.log('Sending data to API:', estudianteData);
 
       this.estudianteService.createEstudiante(estudianteData).subscribe({
         next: (response) => {
-          if (response && response.success) {
+          console.log('API Response:', response);
+          // El WebAPI devuelve directamente el objeto EstudianteDto, no un wrapper ApiResponse
+          if (response && response.id) {
             this.snackBar.open('Estudiante creado exitosamente', 'Cerrar', {
               duration: 3000,
               horizontalPosition: 'right',
@@ -74,7 +96,7 @@ export class EstudiantesCrearComponent {
             });
             this.router.navigate(['/estudiantes']);
           } else {
-            this.snackBar.open('Error al crear estudiante: ' + (response?.message || 'Error desconocido'), 'Cerrar', {
+            this.snackBar.open('Error al crear estudiante: respuesta inesperada del servidor', 'Cerrar', {
               duration: 4000,
               horizontalPosition: 'right',
               verticalPosition: 'bottom',
@@ -84,9 +106,24 @@ export class EstudiantesCrearComponent {
           this.loading.set(false);
         },
         error: (error) => {
-          console.error('Error creating student:', error);
-          this.snackBar.open('Error al crear estudiante. Verifique los datos e intente nuevamente.', 'Cerrar', {
-            duration: 4000,
+          console.error('API Error details:', error);
+          console.error('Error status:', error.status);
+          console.error('Error message:', error.message);
+          console.error('Error body:', error.error);
+          
+          let errorMessage = 'Error al crear estudiante. ';
+          if (error.status === 0) {
+            errorMessage += 'No se puede conectar al servidor. Verifique que el WebAPI esté funcionando en http://localhost:5099';
+          } else if (error.status === 400) {
+            errorMessage += 'Datos inválidos: ' + (error.error?.message || 'Verifique los campos');
+          } else if (error.status === 500) {
+            errorMessage += 'Error interno del servidor';
+          } else {
+            errorMessage += `Error ${error.status}: ${error.message}`;
+          }
+          
+          this.snackBar.open(errorMessage, 'Cerrar', {
+            duration: 6000,
             horizontalPosition: 'right',
             verticalPosition: 'bottom',
             panelClass: ['error-snackbar']
@@ -95,6 +132,7 @@ export class EstudiantesCrearComponent {
         }
       });
     } else {
+      console.log('Form is invalid, marking all fields as touched');
       this.markFormGroupTouched();
     }
   }
@@ -138,8 +176,20 @@ export class EstudiantesCrearComponent {
       apellido: 'Apellido',
       email: 'Email',
       telefono: 'Teléfono',
-      fechaNacimiento: 'Fecha de nacimiento'
+      fechaNacimiento: 'Fecha de nacimiento',
+      documento: 'Documento'
     };
     return displayNames[fieldName] || fieldName;
+  }
+
+  private getFormErrors(): any {
+    let formErrors: any = {};
+    Object.keys(this.estudianteForm.controls).forEach(key => {
+      const controlErrors = this.estudianteForm.get(key)?.errors;
+      if (controlErrors) {
+        formErrors[key] = controlErrors;
+      }
+    });
+    return formErrors;
   }
 }

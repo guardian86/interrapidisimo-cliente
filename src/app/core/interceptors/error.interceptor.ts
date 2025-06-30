@@ -54,13 +54,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       // Solo mostrar snackbar si está habilitado
       if (APP_CONFIG.SHOW_API_ERRORS && error.status !== 404 && error.status !== 400) {
-        const snackBar = inject(MatSnackBar);
-        snackBar.open(errorMessage, 'Cerrar', {
-          duration: 3000,
-          panelClass: ['error-snackbar'],
-          horizontalPosition: 'right',
-          verticalPosition: 'bottom'
-        });
+        // TODO: Implementar notificación de errores sin usar inject en interceptor
+        // const snackBar = inject(MatSnackBar);
+        // snackBar.open(errorMessage, 'Cerrar', {
+        //   duration: 3000,
+        //   panelClass: ['error-snackbar'],
+        //   horizontalPosition: 'right',
+        //   verticalPosition: 'bottom'
+        // });
       }
 
       console.error('HTTP Error:', {

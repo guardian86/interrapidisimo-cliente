@@ -16,7 +16,10 @@
         <!-- Selección de estudiante -->
         <mat-form-field appearance="outline" class="form-field-full">
           <mat-label>Estudiante</mat-label>
-          <mat-select formControlName="estudianteId" placeholder="Seleccione un estudiante">
+          <mat-select 
+            formControlName="estudianteId" 
+            placeholder="Seleccione un estudiante"
+            (selectionChange)="onEstudianteSelectionChange($event.value)">
             <mat-option *ngFor="let estudiante of estudiantes()" [value]="estudiante.id">
               {{ estudiante.nombreCompleto }}
             </mat-option>

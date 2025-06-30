@@ -14,11 +14,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { EstudianteService } from '../../../../core/services/student.service';
+import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { MateriaService } from '../../../../core/services/materia.service';
 import { InscripcionService } from '../../../../core/services/inscripcion.service';
 import { EstudianteDto, EstudianteListDto } from '../../../../core/models/estudiante.model';
-import { MateriasDisponiblesParaEstudianteDto, ProfesorDisponibleDto } from '../../../../core/models/inscripcion.model';
+import { MateriasDisponiblesParaEstudianteDto, ProfesorDisponibleDto, InscripcionResponseDto } from '../../../../core/models/inscripcion.model';
 import { APP_CONFIG } from '../../../../core/settings/app.config';
 
 @Component({
@@ -102,11 +102,9 @@ export class InscripcionWizardComponent implements OnInit {
   loadEstudiantes(): void {
     this.loading.set(true);
     this.estudianteService.getEstudiantes().subscribe({
-      next: (response: any) => {
-        if (response && response.success && response.data) {
-          const estudiantes = Array.isArray(response.data) ? response.data : response.data.data || [];
-          this.estudiantes.set(estudiantes);
-        }
+      next: (estudiantes: EstudianteListDto[]) => {
+        this.estudiantes.set(estudiantes);
+        console.log('Estudiantes cargados:', estudiantes.length);
         this.loading.set(false);
       },
       error: (error) => {
@@ -127,10 +125,9 @@ export class InscripcionWizardComponent implements OnInit {
     this.loadingMaterias.set(true);
     
     this.inscripcionService.getMateriasDisponibles(estudianteId).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.materiasDisponibles.set(response.data);
-        }
+      next: (materiasDisponibles: MateriasDisponiblesParaEstudianteDto[]) => {
+        this.materiasDisponibles.set(materiasDisponibles);
+        console.log('Materias disponibles cargadas:', materiasDisponibles.length);
         this.loadingMaterias.set(false);
       },
       error: (error: any) => {
@@ -297,12 +294,13 @@ export class InscripcionWizardComponent implements OnInit {
     };
 
     this.inscripcionService.createInscripcion(inscripcionData).subscribe({
-      next: (response) => {
-        if (response && response.success) {
+      next: (response: InscripcionResponseDto) => {
+        console.log('Respuesta de inscripción:', response);
+        if (response && response.exitoso) {
           // Procesar siguiente inscripción
           this.procesarInscripciones(estudianteId, inscripciones, index + 1);
         } else {
-          this.snackBar.open(`Error en inscripción ${index + 1}: ${response?.message || 'Error desconocido'}`, 'Cerrar', {
+          this.snackBar.open(`Error en inscripción ${index + 1}: ${response?.mensaje || 'Error desconocido'}`, 'Cerrar', {
             duration: 4000,
             panelClass: ['error-snackbar']
           });

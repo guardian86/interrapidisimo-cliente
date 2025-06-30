@@ -11,7 +11,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
 import { InscripcionService } from '../../../../core/services/inscripcion.service';
-import { EstudianteService } from '../../../../core/services/student.service';
+import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { EstudianteDto, EstudianteListDto } from '../../../../core/models/estudiante.model';
 import { ResumenInscripcionEstudiante } from '../../../../core/models/inscripcion.model';
 
@@ -61,11 +61,9 @@ export class EstudiantesCompanerosComponent implements OnInit {
   loadResumenInscripcion(): void {
     this.loading.set(true);
     
-    this.inscripcionService.getResumenInscripcionEstudiante(this.estudianteId).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.resumenInscripcion.set(response.data);
-        }
+    this.inscripcionService.getResumenInscripcion(this.estudianteId).subscribe({
+      next: (resumen: ResumenInscripcionEstudiante) => {
+        this.resumenInscripcion.set(resumen);
         this.loading.set(false);
       },
       error: (error: any) => {
@@ -83,10 +81,8 @@ export class EstudiantesCompanerosComponent implements OnInit {
 
   loadEstudianteData(): void {
     this.estudianteService.getEstudianteById(this.estudianteId).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.estudiante.set(response.data);
-        }
+      next: (estudiante: EstudianteDto) => {
+        this.estudiante.set(estudiante);
       },
       error: (error: any) => {
         console.error('Error loading student:', error);
@@ -104,12 +100,10 @@ export class EstudiantesCompanerosComponent implements OnInit {
     this.loading.set(true);
     
     this.estudianteService.getEstudiantes().subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          // Filtrar para no incluir al estudiante actual
-          const otrosEstudiantes = response.data.filter(est => est.id !== this.estudianteId);
-          this.todosLosEstudiantes.set(otrosEstudiantes);
-        }
+      next: (estudiantes: EstudianteListDto[]) => {
+        // Filtrar para no incluir al estudiante actual
+        const otrosEstudiantes = estudiantes.filter((est: EstudianteListDto) => est.id !== this.estudianteId);
+        this.todosLosEstudiantes.set(otrosEstudiantes);
         this.loading.set(false);
       },
       error: (error: any) => {

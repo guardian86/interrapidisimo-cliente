@@ -9,7 +9,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import { EstudianteService } from '../../../../core/services/student.service';
+import { MatChipsModule } from '@angular/material/chips';
+import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { EstudianteListDto } from '../../../../core/models/estudiante.model';
 
 @Component({
@@ -24,7 +25,8 @@ import { EstudianteListDto } from '../../../../core/models/estudiante.model';
     MatIconModule,
     MatProgressSpinnerModule,
     MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
+    MatChipsModule
   ],
   templateUrl: './estudiantes-lista.component.html',
   styleUrls: ['./estudiantes-lista.component.scss']
@@ -32,7 +34,7 @@ import { EstudianteListDto } from '../../../../core/models/estudiante.model';
 export class EstudiantesListaComponent implements OnInit {
   estudiantes = signal<EstudianteListDto[]>([]);
   loading = signal(false);
-  displayedColumns: string[] = ['nombre', 'email', 'telefono', 'fechaRegistro', 'acciones'];
+  displayedColumns: string[] = ['nombre', 'email', 'creditos', 'estado', 'acciones'];
 
   constructor(
     private estudianteService: EstudianteService,
@@ -40,26 +42,19 @@ export class EstudiantesListaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('🚀 EstudiantesListaComponent: Iniciando componente...');
     this.loadEstudiantes();
   }
 
   loadEstudiantes(): void {
+    console.log('📋 EstudiantesListaComponent: Iniciando carga de estudiantes...');
     this.loading.set(true);
     
     this.estudianteService.getEstudiantes().subscribe({
-      next: (response: any) => {
-        console.log('API Response:', response);
-        if (response && response.success && response.data) {
-          const estudiantes = Array.isArray(response.data) ? response.data : response.data.data || [];
-          this.estudiantes.set(estudiantes);
-          console.log('Estudiantes cargados:', estudiantes.length);
-        } else if (response && Array.isArray(response)) {
-          this.estudiantes.set(response);
-          console.log('Estudiantes cargados (array directo):', response.length);
-        } else {
-          console.warn('Respuesta sin datos válidos:', response);
-          this.estudiantes.set([]);
-        }
+      next: (estudiantes: EstudianteListDto[]) => {
+        console.log('Estudiantes recibidos:', estudiantes);
+        this.estudiantes.set(estudiantes);
+        console.log('Estudiantes cargados:', estudiantes.length);
         this.loading.set(false);
       },
       error: (error) => {
@@ -69,7 +64,7 @@ export class EstudiantesListaComponent implements OnInit {
         let errorMessage = 'Error al cargar estudiantes. Verifique que la API esté ejecutándose.';
         
         if (error.status === 0) {
-          errorMessage = 'No se puede conectar con la API. Verifique que el servidor esté ejecutándose en http://localhost:5099';
+          errorMessage = 'No se puede conectar con la API. Verifique que el servidor esté ejecutándose en https://localhost:7130';
         } else if (error.status === 404) {
           errorMessage = 'Endpoint no encontrado. Verifique la configuración de la API.';
         } else if (error.status >= 500) {
@@ -93,16 +88,14 @@ export class EstudiantesListaComponent implements OnInit {
   deleteEstudiante(id: number): void {
     if (confirm('¿Está seguro de que desea eliminar este estudiante?')) {
       this.estudianteService.deleteEstudiante(id).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Estudiante eliminado correctamente', 'Cerrar', {
-              duration: 3000,
-              horizontalPosition: 'right',
-              verticalPosition: 'bottom',
-              panelClass: ['success-snackbar']
-            });
-            this.loadEstudiantes(); // Recargar la lista
-          }
+        next: () => {
+          this.snackBar.open('Estudiante eliminado correctamente', 'Cerrar', {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'bottom',
+            panelClass: ['success-snackbar']
+          });
+          this.loadEstudiantes(); // Recargar la lista
         },
         error: (error) => {
           console.error('Error deleting student:', error);

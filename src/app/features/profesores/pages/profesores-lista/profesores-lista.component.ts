@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProfesorService } from '../../../../core/services/profesor.service';
-import { Profesor } from '../../../../core/models/profesor.model';
+import { Profesor, ProfesorListDto } from '../../../../core/models/profesor.model';
 
 @Component({
   selector: 'app-profesores-lista',
@@ -27,7 +27,7 @@ import { Profesor } from '../../../../core/models/profesor.model';
   styleUrls: ['./profesores-lista.component.scss']
 })
 export class ProfesoresListaComponent implements OnInit {
-  profesores = signal<Profesor[]>([]);
+  profesores = signal<ProfesorListDto[]>([]);
   loading = signal(false);
 
   constructor(
@@ -43,17 +43,10 @@ export class ProfesoresListaComponent implements OnInit {
     this.loading.set(true);
     
     this.profesorService.getProfesores().subscribe({
-      next: (response: any) => {
-        if (response && response.success && response.data) {
-          const profesores = Array.isArray(response.data) ? response.data : response.data.data || [];
-          this.profesores.set(profesores);
-          console.log('Profesores cargados:', profesores.length);
-        } else if (response && Array.isArray(response)) {
-          this.profesores.set(response);
-        } else {
-          console.warn('Respuesta sin datos válidos:', response);
-          this.profesores.set([]);
-        }
+      next: (profesores: ProfesorListDto[]) => {
+        console.log('Profesores recibidos:', profesores);
+        this.profesores.set(profesores);
+        console.log('Profesores cargados:', profesores.length);
         this.loading.set(false);
       },
       error: (error) => {
@@ -84,8 +77,11 @@ export class ProfesoresListaComponent implements OnInit {
     });
   }
 
-  getAvatar(nombre: string, apellido: string): string {
-    const initials = `${nombre.charAt(0)}${apellido.charAt(0)}`;
-    return initials.toUpperCase();
+  getAvatar(nombreCompleto: string): string {
+    const nombres = nombreCompleto.split(' ');
+    if (nombres.length >= 2) {
+      return `${nombres[0].charAt(0)}${nombres[nombres.length - 1].charAt(0)}`.toUpperCase();
+    }
+    return nombreCompleto.charAt(0).toUpperCase();
   }
 }
