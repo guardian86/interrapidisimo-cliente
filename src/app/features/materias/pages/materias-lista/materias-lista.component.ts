@@ -87,6 +87,11 @@ export class MateriasListaComponent implements OnInit {
   }
 
   getProfesorNombre(materia: Materia): string {
-    return materia.profesor ? `${materia.profesor.nombre} ${materia.profesor.apellido}` : 'Sin asignar';
+    // Temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
+    return 'Ver profesores disponibles';
+  }
+
+  getTotalCreditos(): number {
+    return this.materias().reduce((total, m) => total + m.creditos, 0);
   }
 }

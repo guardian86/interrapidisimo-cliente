@@ -17,11 +17,19 @@ export const INSCRIPCIONES_ROUTES: Routes = [
     loadComponent: () => import('./pages/mis-inscripciones/mis-inscripciones.component')
       .then(m => m.MisInscripcionesComponent),
     title: 'Mis Inscripciones'
-  },
-  {
-    path: 'estudiante/:id',
-    loadComponent: () => import('./pages/inscripciones-estudiante/inscripciones-estudiante.component')
-      .then(m => m.InscripcionesEstudianteComponent),
-    title: 'Inscripciones del Estudiante'
   }
+  // Comentado temporalmente - componentes no creados aún
+  // Comentado temporalmente - componentes no creados aún
+  // {
+  //   path: 'mis-inscripciones',
+  //   loadComponent: () => import('./pages/mis-inscripciones/mis-inscripciones.component')
+  //     .then(m => m.MisInscripcionesComponent),
+  //   title: 'Mis Inscripciones'
+  // },
+  // {
+  //   path: 'estudiante/:id',
+  //   loadComponent: () => import('./pages/inscripciones-estudiante/inscripciones-estudiante.component')
+  //     .then(m => m.InscripcionesEstudianteComponent),
+  //   title: 'Inscripciones del Estudiante'
+  // }
 ];

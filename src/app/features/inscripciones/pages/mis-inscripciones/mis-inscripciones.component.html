@@ -1,0 +1,172 @@
+<div class="mis-inscripciones-container">
+  <mat-card class="main-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>school</mat-icon>
+        Mis Inscripciones
+      </mat-card-title>
+      <mat-card-subtitle>
+        Consulta las inscripciones de cualquier estudiante
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Selector de estudiante -->
+      <div class="estudiante-selector">
+        <form [formGroup]="estudianteForm">
+          @if (loading()) {
+            <div class="loading-container">
+              <mat-progress-spinner diameter="50"></mat-progress-spinner>
+              <p>Cargando estudiantes...</p>
+            </div>
+          } @else {
+            <mat-form-field appearance="outline" class="form-field-full">
+              <mat-label>Seleccionar Estudiante</mat-label>
+              <mat-select formControlName="estudianteId" placeholder="Seleccione un estudiante">
+                <mat-option value="">-- Ninguno --</mat-option>
+                <mat-option *ngFor="let estudiante of estudiantes()" [value]="estudiante.id">
+                  {{ estudiante.nombreCompleto }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          }
+        </form>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Contenido de inscripciones -->
+      @if (!estudianteSeleccionado()) {
+        <div class="empty-state">
+          <mat-icon>info</mat-icon>
+          <h3>Selecciona un estudiante</h3>
+          <p>Selecciona un estudiante para ver sus inscripciones</p>
+        </div>
+      } @else if (loadingInscripciones()) {
+        <div class="loading-container">
+          <mat-progress-spinner diameter="50"></mat-progress-spinner>
+          <p>Cargando inscripciones...</p>
+        </div>
+      } @else if (inscripciones().length === 0) {
+        <div class="empty-state">
+          <mat-icon>school</mat-icon>
+          <h3>Sin inscripciones</h3>
+          <p>Este estudiante no tiene inscripciones registradas</p>
+          <button mat-raised-button color="primary" routerLink="/inscripciones/nueva">
+            <mat-icon>add</mat-icon>
+            Nueva Inscripción
+          </button>
+        </div>
+      } @else {
+        <!-- Resumen del estudiante -->
+        <div class="estudiante-summary">
+          <mat-card class="summary-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>person</mat-icon>
+                {{ getEstudianteNombre(estudianteSeleccionado()!) }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="summary-stats">
+                <div class="stat-item">
+                  <mat-icon>book</mat-icon>
+                  <span class="stat-label">Materias Inscritas:</span>
+                  <span class="stat-value">{{ inscripciones().length }}</span>
+                </div>
+                <div class="stat-item">
+                  <mat-icon>credit_score</mat-icon>
+                  <span class="stat-label">Total Créditos:</span>
+                  <span class="stat-value">{{ getTotalCreditos() }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Tabla de inscripciones -->
+        <div class="inscripciones-table">
+          <mat-table [dataSource]="inscripciones()" class="inscripciones-mat-table">
+            
+            <!-- Columna Materia -->
+            <ng-container matColumnDef="materia">
+              <mat-header-cell *matHeaderCellDef>Materia</mat-header-cell>
+              <mat-cell *matCellDef="let inscripcion">
+                <div class="materia-cell">
+                  <strong>{{ inscripcion.nombreMateria }}</strong>
+                  <small>{{ inscripcion.codigoMateria }}</small>
+                </div>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Columna Código -->
+            <ng-container matColumnDef="codigo">
+              <mat-header-cell *matHeaderCellDef>Código</mat-header-cell>
+              <mat-cell *matCellDef="let inscripcion">
+                <mat-chip color="primary">{{ inscripcion.codigoMateria }}</mat-chip>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Columna Créditos -->
+            <ng-container matColumnDef="creditos">
+              <mat-header-cell *matHeaderCellDef>Créditos</mat-header-cell>
+              <mat-cell *matCellDef="let inscripcion">
+                <div class="creditos-cell">
+                  <mat-icon>credit_score</mat-icon>
+                  {{ inscripcion.creditos }}
+                </div>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Columna Profesor -->
+            <ng-container matColumnDef="profesor">
+              <mat-header-cell *matHeaderCellDef>Profesor</mat-header-cell>
+              <mat-cell *matCellDef="let inscripcion">
+                <div class="profesor-cell">
+                  <strong>{{ inscripcion.nombreProfesor }}</strong>
+                </div>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Columna Especialidad -->
+            <ng-container matColumnDef="especialidad">
+              <mat-header-cell *matHeaderCellDef>Especialidad</mat-header-cell>
+              <mat-cell *matCellDef="let inscripcion">
+                <mat-chip color="accent">Especialidad</mat-chip>
+              </mat-cell>
+            </ng-container>
+
+            <!-- Columna Acciones -->
+            <ng-container matColumnDef="acciones">
+              <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+              <mat-cell *matCellDef="let inscripcion">
+                <div class="acciones-cell">
+                  <button mat-icon-button color="warn" 
+                          (click)="onEliminarInscripcion(inscripcion)"
+                          matTooltip="Eliminar inscripción">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          </mat-table>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" routerLink="/inscripciones/nueva">
+            <mat-icon>add</mat-icon>
+            Nueva Inscripción
+          </button>
+          <button mat-button routerLink="/estudiantes">
+            <mat-icon>arrow_back</mat-icon>
+            Volver a Estudiantes
+          </button>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

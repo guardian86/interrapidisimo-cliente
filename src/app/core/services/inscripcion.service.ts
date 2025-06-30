@@ -40,15 +40,22 @@ export class InscripcionService {
   }
 
   /**
-   * Elimina una inscripción
+   * Elimina una inscripción por parámetros específicos
    */
-  deleteInscripcion(estudianteId: number, materiaId: number, profesorId: number): Observable<ApiResponse<void>> {
+  deleteInscripcionByParams(estudianteId: number, materiaId: number, profesorId: number): Observable<ApiResponse<void>> {
     const params = new HttpParams()
       .set('estudianteId', estudianteId.toString())
       .set('materiaId', materiaId.toString())
       .set('profesorId', profesorId.toString());
     
     return this.http.delete<ApiResponse<void>>(API_ENDPOINTS.INSCRIPCIONES, { params });
+  }
+
+  /**
+   * Elimina una inscripción por ID
+   */
+  deleteInscripcionById(inscripcionId: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${API_ENDPOINTS.INSCRIPCIONES}/${inscripcionId}`);
   }
 
   /**

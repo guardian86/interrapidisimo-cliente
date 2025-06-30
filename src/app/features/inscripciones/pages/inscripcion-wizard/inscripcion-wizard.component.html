@@ -32,7 +32,7 @@
                   <mat-label>Estudiante</mat-label>
                   <mat-select formControlName="estudianteId" placeholder="Seleccione un estudiante">
                     <mat-option *ngFor="let estudiante of estudiantes()" [value]="estudiante.id">
-                      {{ estudiante.nombre }} {{ estudiante.apellido }}
+                      {{ estudiante.nombreCompleto }}
                     </mat-option>
                   </mat-select>
                   <mat-error *ngIf="estudianteForm.get('estudianteId')?.invalid && estudianteForm.get('estudianteId')?.touched">
@@ -69,7 +69,7 @@
                     color="primary">
                   </mat-progress-bar>
                   <span class="progress-label">
-                    Materias: {{ materiasSeleccionadas().length }}/{{ MAX_MATERIAS }}
+                    Materias: {{ inscripcionesSeleccionadas().length }}/{{ MAX_MATERIAS }}
                   </span>
                 </div>
                 
@@ -88,54 +88,75 @@
               @if (loadingMaterias()) {
                 <div class="loading-container">
                   <mat-progress-spinner diameter="50"></mat-progress-spinner>
-                  <p>Cargando materias...</p>
+                  <p>Cargando materias disponibles...</p>
+                </div>
+              } @else if (materiasDisponibles().length === 0 && estudianteSeleccionado()) {
+                <div class="empty-state">
+                  <mat-icon>school</mat-icon>
+                  <p>No hay materias disponibles para este estudiante</p>
+                </div>
+              } @else if (!estudianteSeleccionado()) {
+                <div class="empty-state">
+                  <mat-icon>info</mat-icon>
+                  <p>Selecciona un estudiante para ver las materias disponibles</p>
                 </div>
               } @else {
                 <div class="materias-grid">
-                  <div *ngFor="let materia of materias()" 
-                       class="materia-card"
-                       [class.selected]="isMateriaSelected(materia)"
-                       [class.disabled]="isMateriaDisabled(materia)">
-                    
-                    <mat-checkbox 
-                      [checked]="isMateriaSelected(materia)"
-                      [disabled]="isMateriaDisabled(materia)"
-                      (change)="onMateriaToggle(materia, $event.checked)">
+                  @for (materia of materiasDisponibles(); track materia.materiaId) {
+                    <div class="materia-card">
+                      <div class="materia-header">
+                        <h4>{{ materia.nombreMateria }}</h4>
+                        <span class="materia-code">{{ materia.codigoMateria }}</span>
+                      </div>
                       
-                      <div class="materia-info">
-                        <div class="materia-title">{{ materia.nombre }}</div>
-                        <div class="materia-code">{{ materia.codigo }}</div>
-                        <div class="materia-credits">
-                          <mat-icon>credit_score</mat-icon>
-                          {{ materia.creditos }} créditos
-                        </div>
-                        <div class="materia-professor" *ngIf="materia.profesor">
-                          <mat-icon>person</mat-icon>
-                          Prof. {{ materia.profesor.nombre }} {{ materia.profesor.apellido }}
+                      <div class="materia-credits">
+                        <mat-icon>credit_score</mat-icon>
+                        {{ materia.creditosMateria }} créditos
+                      </div>
+                      
+                      <div class="profesores-section">
+                        <h5>Profesores disponibles:</h5>
+                        <div class="profesores-list">
+                          @for (profesor of materia.profesoresDisponibles; track profesor.profesorId) {
+                            <div class="profesor-option">
+                              <mat-checkbox 
+                                [checked]="isInscripcionSelected(materia, profesor.profesorId)"
+                                [disabled]="isInscripcionDisabled(materia, profesor.profesorId)"
+                                (change)="onMateriaToggle(materia, profesor.profesorId, $event.checked)">
+                                
+                                <div class="profesor-info">
+                                  <span class="profesor-nombre">{{ profesor.nombreCompleto }}</span>
+                                  <span class="profesor-especialidad">{{ profesor.especialidad }}</span>
+                                </div>
+                              </mat-checkbox>
+                            </div>
+                          }
                         </div>
                       </div>
-                    </mat-checkbox>
-                  </div>
+                    </div>
+                  }
                 </div>
               }
 
               <!-- Resumen de selección -->
-              @if (materiasSeleccionadas().length > 0) {
+              @if (inscripcionesSeleccionadas().length > 0) {
                 <div class="selection-summary">
                   <h4>
                     <mat-icon>assessment</mat-icon>
-                    Materias Seleccionadas
+                    Inscripciones Seleccionadas
                   </h4>
                   
-                  <mat-chip-set>
-                    <mat-chip *ngFor="let materia of materiasSeleccionadas()" 
-                              color="primary" 
-                              (removed)="onMateriaToggle(materia, false)"
-                              removable="true">
-                      {{ materia.nombre }} ({{ materia.creditos }} créditos)
-                      <mat-icon matChipRemove>cancel</mat-icon>
-                    </mat-chip>
-                  </mat-chip-set>
+                  <div class="inscripciones-selected">
+                    @for (inscripcion of inscripcionesSeleccionadas(); track inscripcion.materia.materiaId + '-' + inscripcion.profesorId) {
+                      <mat-chip 
+                        color="primary" 
+                        (removed)="onMateriaToggle(inscripcion.materia, inscripcion.profesorId, false)"
+                        removable="true">
+                        {{ inscripcion.materia.nombreMateria }} - {{ getProfesorNombre(inscripcion.materia, inscripcion.profesorId) }} ({{ inscripcion.materia.creditosMateria }} créditos)
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                      </mat-chip>
+                    }
+                  </div>
                 </div>
               }
               
@@ -145,7 +166,7 @@
                   Anterior
                 </button>
                 <button type="button" mat-raised-button color="primary" matStepperNext 
-                        [disabled]="materiasForm.invalid || materiasSeleccionadas().length === 0">
+                        [disabled]="materiasForm.invalid || inscripcionesSeleccionadas().length === 0">
                   <mat-icon>arrow_forward</mat-icon>
                   Siguiente
                 </button>
@@ -176,9 +197,9 @@
                     @for (estudiante of estudiantes(); track estudiante.id) {
                       @if (estudiante.id === estudianteForm.get('estudianteId')?.value) {
                         <div class="estudiante-info">
-                          <strong>{{ estudiante.nombre }} {{ estudiante.apellido }}</strong>
+                          <strong>{{ estudiante.nombreCompleto }}</strong>
                           <p>{{ estudiante.email }}</p>
-                          <p>Teléfono: {{ estudiante.telefono }}</p>
+                          <p>Créditos actuales: {{ estudiante.creditosSeleccionados }}</p>
                         </div>
                       }
                     }
@@ -186,33 +207,35 @@
                 </mat-card-content>
               </mat-card>
 
-              <!-- Resumen de materias -->
+              <!-- Resumen de inscripciones -->
               <mat-card class="summary-card">
                 <mat-card-header>
                   <mat-card-title>
                     <mat-icon>book</mat-icon>
-                    Materias Seleccionadas
+                    Inscripciones Seleccionadas
                   </mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
-                  <div class="materias-summary">
-                    <div *ngFor="let materia of materiasSeleccionadas()" class="materia-summary-item">
-                      <div class="materia-name">{{ materia.nombre }}</div>
-                      <div class="materia-details">
-                        <span class="materia-code">{{ materia.codigo }}</span>
-                        <span class="materia-credits">{{ materia.creditos }} créditos</span>
-                        <span class="materia-professor" *ngIf="materia.profesor">
-                          Prof. {{ materia.profesor.nombre }} {{ materia.profesor.apellido }}
-                        </span>
+                  <div class="inscripciones-summary">
+                    @for (inscripcion of inscripcionesSeleccionadas(); track inscripcion.materia.materiaId + '-' + inscripcion.profesorId) {
+                      <div class="inscripcion-summary-item">
+                        <div class="materia-name">{{ inscripcion.materia.nombreMateria }}</div>
+                        <div class="materia-details">
+                          <span class="materia-code">{{ inscripcion.materia.codigoMateria }}</span>
+                          <span class="materia-credits">{{ inscripcion.materia.creditosMateria }} créditos</span>
+                          <span class="materia-professor">
+                            Prof. {{ getProfesorNombre(inscripcion.materia, inscripcion.profesorId) }}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    }
                   </div>
                   
                   <mat-divider></mat-divider>
                   
                   <div class="totals">
                     <div class="total-item">
-                      <strong>Total Materias: {{ materiasSeleccionadas().length }}/{{ MAX_MATERIAS }}</strong>
+                      <strong>Total Materias: {{ inscripcionesSeleccionadas().length }}/{{ MAX_MATERIAS }}</strong>
                     </div>
                     <div class="total-item">
                       <strong>Total Créditos: {{ creditosActuales() }}/{{ MAX_CREDITOS }}</strong>

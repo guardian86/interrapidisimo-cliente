@@ -104,12 +104,12 @@
           </div>
         } @else {
           <div class="estudiantes-grid">
-            @for (inscripcion of estudiantesInscritos(); track inscripcion.id) {
+            @for (inscripcion of estudiantesInscritos(); track inscripcion.estudianteId) {
               <div class="estudiante-item">
                 <mat-icon>person</mat-icon>
                 <div class="estudiante-info">
-                  <span class="nombre">{{ inscripcion.estudiante?.nombre }} {{ inscripcion.estudiante?.apellido }}</span>
-                  <span class="email">{{ inscripcion.estudiante?.email }}</span>
+                  <span class="nombre">{{ inscripcion.nombreEstudiante }}</span>
+                  <span class="email">ID: {{ inscripcion.estudianteId }}</span>
                 </div>
               </div>
             }
@@ -135,5 +135,15 @@
         </div>
       </mat-card-content>
     </mat-card>
+  } @else {
+    <div class="no-data-container">
+      <mat-icon>book_off</mat-icon>
+      <h3>Materia no encontrada</h3>
+      <p>La materia solicitada no existe o ha sido eliminada.</p>
+      <button mat-raised-button color="primary" routerLink="/materias">
+        <mat-icon>arrow_back</mat-icon>
+        Volver a Materias
+      </button>
+    </div>
   }
-}</div>
+</div>

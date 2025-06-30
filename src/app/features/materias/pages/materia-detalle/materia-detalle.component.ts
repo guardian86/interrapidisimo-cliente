@@ -83,35 +83,42 @@ export class MateriaDetalleComponent implements OnInit {
   loadEstudiantesInscritos(): void {
     this.loadingEstudiantes.set(true);
     
-    this.inscripcionService.getEstudiantesByMateria(this.materiaId).subscribe({
-      next: (response: any) => {
-        if (response && response.success && response.data) {
-          this.estudiantesInscritos.set(response.data);
-        } else {
-          this.estudiantesInscritos.set([]);
-        }
-        this.loadingEstudiantes.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading estudiantes inscritos:', error);
-        this.snackBar.open('Error al cargar estudiantes inscritos', 'Cerrar', {
-          duration: 4000,
-          panelClass: ['error-snackbar']
-        });
-        this.estudiantesInscritos.set([]);
-        this.loadingEstudiantes.set(false);
-      }
-    });
+    // Temporalmente comentado - endpoint no disponible aún
+    // this.inscripcionService.getEstudiantesByMateria(this.materiaId).subscribe({
+    //   next: (response: any) => {
+    //     if (response && response.success && response.data) {
+    //       this.estudiantesInscritos.set(response.data);
+    //     } else {
+    //       this.estudiantesInscritos.set([]);
+    //     }
+    //     this.loadingEstudiantes.set(false);
+    //   },
+    //   error: (error) => {
+    //     console.error('Error loading estudiantes inscritos:', error);
+    //     this.snackBar.open('Error al cargar estudiantes inscritos', 'Cerrar', {
+    //       duration: 4000,
+    //       panelClass: ['error-snackbar']
+    //     });
+    //     this.estudiantesInscritos.set([]);
+    //     this.loadingEstudiantes.set(false);
+    //   }
+    // });
+    
+    // Simular datos vacíos por ahora
+    this.estudiantesInscritos.set([]);
+    this.loadingEstudiantes.set(false);
   }
 
   getProfesorNombre(): string {
     const materia = this.materia();
-    return materia?.profesor ? `${materia.profesor.nombre} ${materia.profesor.apellido}` : 'Sin asignar';
+    // Temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
+    return 'Profesores disponibles ver en detalle';
   }
 
   getProfesorEspecializacion(): string {
     const materia = this.materia();
-    return materia?.profesor?.especializacion || 'No especificada';
+    // Temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
+    return 'Ver especialidades en lista de profesores';
   }
 
   goBack(): void {

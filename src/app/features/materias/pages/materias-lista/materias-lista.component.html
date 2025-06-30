@@ -89,7 +89,7 @@
               <span class="label">Materias Disponibles</span>
             </div>
             <div class="stat">
-              <span class="number">{{ materias().reduce((total, m) => total + m.creditos, 0) }}</span>
+              <span class="number">{{ getTotalCreditos() }}</span>
               <span class="label">Total Créditos</span>
             </div>
             <div class="stat">
@@ -101,4 +101,4 @@
       </mat-card>
     </div>
   }
-}</div>
+</div>

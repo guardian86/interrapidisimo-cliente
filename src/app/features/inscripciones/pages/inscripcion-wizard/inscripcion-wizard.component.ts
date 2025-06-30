@@ -17,8 +17,8 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { EstudianteService } from '../../../../core/services/student.service';
 import { MateriaService } from '../../../../core/services/materia.service';
 import { InscripcionService } from '../../../../core/services/inscripcion.service';
-import { Estudiante } from '../../../../core/models/estudiante.model';
-import { Materia } from '../../../../core/models/materia.model';
+import { EstudianteDto, EstudianteListDto } from '../../../../core/models/estudiante.model';
+import { MateriasDisponiblesParaEstudianteDto, ProfesorDisponibleDto } from '../../../../core/models/inscripcion.model';
 import { APP_CONFIG } from '../../../../core/settings/app.config';
 
 @Component({
@@ -50,14 +50,15 @@ export class InscripcionWizardComponent implements OnInit {
   materiasForm: FormGroup;
   
   // Data
-  estudiantes = signal<Estudiante[]>([]);
-  materias = signal<Materia[]>([]);
-  materiasSeleccionadas = signal<Materia[]>([]);
+  estudiantes = signal<EstudianteListDto[]>([]);
+  materiasDisponibles = signal<MateriasDisponiblesParaEstudianteDto[]>([]);
+  inscripcionesSeleccionadas = signal<{materia: MateriasDisponiblesParaEstudianteDto, profesorId: number}[]>([]);
   
   // State
   loading = signal(false);
   loadingMaterias = signal(false);
   inscribiendo = signal(false);
+  estudianteSeleccionado = signal<number | null>(null);
   
   // Validation tracking
   creditosActuales = signal(0);
@@ -87,7 +88,15 @@ export class InscripcionWizardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEstudiantes();
-    this.loadMaterias();
+    
+    // Escuchar cambios en la selección de estudiante
+    this.estudianteForm.get('estudianteId')?.valueChanges.subscribe(estudianteId => {
+      if (estudianteId) {
+        this.estudianteSeleccionado.set(estudianteId);
+        this.loadMateriasDisponibles();
+        this.resetSelecciones();
+      }
+    });
   }
 
   loadEstudiantes(): void {
@@ -111,20 +120,23 @@ export class InscripcionWizardComponent implements OnInit {
     });
   }
 
-  loadMaterias(): void {
+  loadMateriasDisponibles(): void {
+    const estudianteId = this.estudianteSeleccionado();
+    if (!estudianteId) return;
+
     this.loadingMaterias.set(true);
-    this.materiaService.getMaterias().subscribe({
-      next: (response: any) => {
-        if (response && response.success && response.data) {
-          const materias = Array.isArray(response.data) ? response.data : response.data.data || [];
-          this.materias.set(materias);
+    
+    this.inscripcionService.getMateriasDisponibles(estudianteId).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.materiasDisponibles.set(response.data);
         }
         this.loadingMaterias.set(false);
       },
-      error: (error) => {
-        console.error('Error loading materias:', error);
+      error: (error: any) => {
+        console.error('Error loading materias disponibles:', error);
         this.loadingMaterias.set(false);
-        this.snackBar.open('Error al cargar materias', 'Cerrar', {
+        this.snackBar.open('Error al cargar materias disponibles', 'Cerrar', {
           duration: 4000,
           panelClass: ['error-snackbar']
         });
@@ -132,12 +144,12 @@ export class InscripcionWizardComponent implements OnInit {
     });
   }
 
-  onMateriaToggle(materia: Materia, checked: boolean): void {
-    const materiasActuales = this.materiasSeleccionadas();
+  onMateriaToggle(materia: MateriasDisponiblesParaEstudianteDto, profesorId: number, checked: boolean): void {
+    const inscripcionesActuales = this.inscripcionesSeleccionadas();
     
     if (checked) {
       // Validar límite de materias
-      if (materiasActuales.length >= this.MAX_MATERIAS) {
+      if (inscripcionesActuales.length >= this.MAX_MATERIAS) {
         this.snackBar.open(`Solo puedes seleccionar máximo ${this.MAX_MATERIAS} materias`, 'Cerrar', {
           duration: 3000,
           panelClass: ['warning-snackbar']
@@ -146,7 +158,7 @@ export class InscripcionWizardComponent implements OnInit {
       }
       
       // Validar límite de créditos
-      const nuevosCreditos = this.creditosActuales() + materia.creditos;
+      const nuevosCreditos = this.creditosActuales() + materia.creditosMateria;
       if (nuevosCreditos > this.MAX_CREDITOS) {
         this.snackBar.open(`Excederías el límite de ${this.MAX_CREDITOS} créditos`, 'Cerrar', {
           duration: 3000,
@@ -156,8 +168,9 @@ export class InscripcionWizardComponent implements OnInit {
       }
       
       // Validar profesor único
-      if (materia.profesorId && this.profesoresSeleccionados().has(materia.profesorId)) {
-        const profesorNombre = materia.profesor ? `${materia.profesor.nombre} ${materia.profesor.apellido}` : 'este profesor';
+      if (this.profesoresSeleccionados().has(profesorId)) {
+        const profesor = materia.profesoresDisponibles.find(p => p.profesorId === profesorId);
+        const profesorNombre = profesor ? profesor.nombreCompleto : 'este profesor';
         this.snackBar.open(`No puedes tener clases con ${profesorNombre} en múltiples materias`, 'Cerrar', {
           duration: 3000,
           panelClass: ['warning-snackbar']
@@ -165,48 +178,52 @@ export class InscripcionWizardComponent implements OnInit {
         return;
       }
       
-      // Agregar materia
-      this.materiasSeleccionadas.set([...materiasActuales, materia]);
+      // Agregar inscripción
+      this.inscripcionesSeleccionadas.set([...inscripcionesActuales, { materia, profesorId }]);
       this.creditosActuales.set(nuevosCreditos);
-      if (materia.profesorId) {
-        const profesores = new Set(this.profesoresSeleccionados());
-        profesores.add(materia.profesorId);
-        this.profesoresSeleccionados.set(profesores);
-      }
-    } else {
-      // Remover materia
-      const nuevasMaterias = materiasActuales.filter(m => m.id !== materia.id);
-      this.materiasSeleccionadas.set(nuevasMaterias);
-      this.creditosActuales.set(this.creditosActuales() - materia.creditos);
       
-      if (materia.profesorId) {
-        const profesores = new Set(this.profesoresSeleccionados());
-        profesores.delete(materia.profesorId);
-        this.profesoresSeleccionados.set(profesores);
-      }
+      const profesores = new Set(this.profesoresSeleccionados());
+      profesores.add(profesorId);
+      this.profesoresSeleccionados.set(profesores);
+    } else {
+      // Remover inscripción
+      const nuevasInscripciones = inscripcionesActuales.filter(i => 
+        !(i.materia.materiaId === materia.materiaId && i.profesorId === profesorId)
+      );
+      this.inscripcionesSeleccionadas.set(nuevasInscripciones);
+      this.creditosActuales.set(this.creditosActuales() - materia.creditosMateria);
+      
+      const profesores = new Set(this.profesoresSeleccionados());
+      profesores.delete(profesorId);
+      this.profesoresSeleccionados.set(profesores);
     }
     
     // Actualizar form
     this.materiasForm.patchValue({
-      materias: this.materiasSeleccionadas().map(m => m.id)
+      materias: this.inscripcionesSeleccionadas().map(i => ({ 
+        materiaId: i.materia.materiaId, 
+        profesorId: i.profesorId 
+      }))
     });
   }
 
-  isMateriaSelected(materia: Materia): boolean {
-    return this.materiasSeleccionadas().some(m => m.id === materia.id);
+  isInscripcionSelected(materia: MateriasDisponiblesParaEstudianteDto, profesorId: number): boolean {
+    return this.inscripcionesSeleccionadas().some(i => 
+      i.materia.materiaId === materia.materiaId && i.profesorId === profesorId
+    );
   }
 
-  isMateriaDisabled(materia: Materia): boolean {
-    if (this.isMateriaSelected(materia)) return false;
+  isInscripcionDisabled(materia: MateriasDisponiblesParaEstudianteDto, profesorId: number): boolean {
+    if (this.isInscripcionSelected(materia, profesorId)) return false;
     
     // Disabled si alcanzó límite de materias
-    if (this.materiasSeleccionadas().length >= this.MAX_MATERIAS) return true;
+    if (this.inscripcionesSeleccionadas().length >= this.MAX_MATERIAS) return true;
     
     // Disabled si excedería créditos
-    if (this.creditosActuales() + materia.creditos > this.MAX_CREDITOS) return true;
+    if (this.creditosActuales() + materia.creditosMateria > this.MAX_CREDITOS) return true;
     
     // Disabled si ya tiene ese profesor
-    if (materia.profesorId && this.profesoresSeleccionados().has(materia.profesorId)) return true;
+    if (this.profesoresSeleccionados().has(profesorId)) return true;
     
     return false;
   }
@@ -216,7 +233,21 @@ export class InscripcionWizardComponent implements OnInit {
   }
 
   getProgresoMateriasPercentage(): number {
-    return (this.materiasSeleccionadas().length / this.MAX_MATERIAS) * 100;
+    return (this.inscripcionesSeleccionadas().length / this.MAX_MATERIAS) * 100;
+  }
+
+  getProfesorNombre(materia: MateriasDisponiblesParaEstudianteDto, profesorId: number): string {
+    const profesor = materia.profesoresDisponibles.find(p => p.profesorId === profesorId);
+    return profesor ? profesor.nombreCompleto : 'Profesor no encontrado';
+  }
+
+  resetSelecciones(): void {
+    this.inscripcionesSeleccionadas.set([]);
+    this.creditosActuales.set(0);
+    this.profesoresSeleccionados.set(new Set());
+    this.materiasForm.patchValue({
+      materias: []
+    });
   }
 
   onSubmitInscripcion(): void {
@@ -228,35 +259,59 @@ export class InscripcionWizardComponent implements OnInit {
       return;
     }
 
+    if (this.inscripcionesSeleccionadas().length === 0) {
+      this.snackBar.open('Selecciona al menos una materia', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['warning-snackbar']
+      });
+      return;
+    }
+
     this.inscribiendo.set(true);
     
+    // El WebAPI espera inscripciones individuales, no en lote
+    // Procesaremos cada inscripción una por una
+    const estudianteId = this.estudianteForm.value.estudianteId;
+    const inscripciones = this.inscripcionesSeleccionadas();
+    
+    this.procesarInscripciones(estudianteId, inscripciones, 0);
+  }
+
+  private procesarInscripciones(estudianteId: number, inscripciones: any[], index: number): void {
+    if (index >= inscripciones.length) {
+      // Todas las inscripciones completadas
+      this.inscribiendo.set(false);
+      this.snackBar.open('Todas las inscripciones fueron procesadas exitosamente', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['success-snackbar']
+      });
+      this.router.navigate(['/estudiantes']);
+      return;
+    }
+
+    const inscripcion = inscripciones[index];
     const inscripcionData = {
-      estudianteId: this.estudianteForm.value.estudianteId,
-      materias: this.materiasSeleccionadas().map(materia => ({
-        materiaId: materia.id,
-        profesorId: materia.profesorId
-      }))
+      estudianteId: estudianteId,
+      materiaId: inscripcion.materia.materiaId,
+      profesorId: inscripcion.profesorId
     };
 
     this.inscripcionService.createInscripcion(inscripcionData).subscribe({
       next: (response) => {
         if (response && response.success) {
-          this.snackBar.open('Inscripción realizada exitosamente', 'Cerrar', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-          this.router.navigate(['/inscripciones/mis-inscripciones']);
+          // Procesar siguiente inscripción
+          this.procesarInscripciones(estudianteId, inscripciones, index + 1);
         } else {
-          this.snackBar.open('Error en la inscripción: ' + (response?.message || 'Error desconocido'), 'Cerrar', {
+          this.snackBar.open(`Error en inscripción ${index + 1}: ${response?.message || 'Error desconocido'}`, 'Cerrar', {
             duration: 4000,
             panelClass: ['error-snackbar']
           });
+          this.inscribiendo.set(false);
         }
-        this.inscribiendo.set(false);
       },
       error: (error) => {
-        console.error('Error creating inscripcion:', error);
-        this.snackBar.open('Error al procesar la inscripción', 'Cerrar', {
+        console.error(`Error en inscripción ${index + 1}:`, error);
+        this.snackBar.open(`Error al procesar inscripción ${index + 1}`, 'Cerrar', {
           duration: 4000,
           panelClass: ['error-snackbar']
         });
@@ -268,8 +323,7 @@ export class InscripcionWizardComponent implements OnInit {
   resetWizard(): void {
     this.estudianteForm.reset();
     this.materiasForm.reset();
-    this.materiasSeleccionadas.set([]);
-    this.creditosActuales.set(0);
-    this.profesoresSeleccionados.set(new Set());
+    this.resetSelecciones();
+    this.estudianteSeleccionado.set(null);
   }
 }
