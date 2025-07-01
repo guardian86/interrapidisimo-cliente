@@ -47,7 +47,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
           <mat-divider></mat-divider>
           
           <h3 mat-subheader>Inscripciones</h3>
-          <a mat-list-item routerLink="/estudiantes/inscripcion" routerLinkActive="active">
+          <a mat-list-item routerLink="/estudiantes/inscripciones" routerLinkActive="active">
             <mat-icon matListItemIcon>assignment</mat-icon>
             <span matListItemTitle>Nueva Inscripción</span>
           </a>
@@ -69,7 +69,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
           </button>
           <span>Sistema de Registro de Estudiantes</span>
           <span class="spacer"></span>
-          <span class="version">v1.0.0</span>
         </mat-toolbar>
         
         <main class="main-content">

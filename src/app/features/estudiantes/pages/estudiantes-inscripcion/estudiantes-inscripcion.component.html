@@ -36,19 +36,43 @@
             formControlName="materiaIds" 
             multiple 
             placeholder="Seleccione las materias"
-            (selectionChange)="onMateriaSelectionChange($event.value)">
-            <mat-option *ngFor="let materia of materias()" [value]="materia.materiaId">
-              {{ materia.nombreMateria }} - {{ materia.codigoMateria }} 
+            (selectionChange)="onMateriaSelectionChange($event.value)"
+            [disabled]="materias().length === 0 || !enrollmentForm.get('estudianteId')?.value">
+            <mat-option *ngFor="let materia of materias(); let i = index" [value]="materia.materiaId">
+              {{ materia.nombreMateria }} 
+              <span *ngIf="materia.codigoMateria" class="materia-info">- {{ materia.codigoMateria }}</span>
               <span class="materia-info">({{ materia.creditosMateria }} créditos)</span>
-              <span *ngIf="materia.profesoresDisponibles.length > 0" class="profesor-info">
-                - Profesores: {{ materia.profesoresDisponibles.length }} disponible(s)
+              <span *ngIf="materia.profesoresDisponibles && materia.profesoresDisponibles.length > 0" class="profesor-info">
+                - {{ materia.profesoresDisponibles.length }} profesor(es) disponible(s)
+              </span>
+              <span *ngIf="!materia.profesoresDisponibles || materia.profesoresDisponibles.length === 0" class="profesor-warning">
+                - Sin profesores disponibles
               </span>
             </mat-option>
           </mat-select>
+          <mat-hint *ngIf="!enrollmentForm.get('estudianteId')?.value">
+            Primero seleccione un estudiante
+          </mat-hint>
+          <mat-hint *ngIf="materias().length === 0 && enrollmentForm.get('estudianteId')?.value && !loading()">
+            No hay materias disponibles para este estudiante
+          </mat-hint>
           <mat-error *ngIf="enrollmentForm.get('materiaIds')?.invalid && enrollmentForm.get('materiaIds')?.touched">
             {{ getErrorMessage('materiaIds') }}
           </mat-error>
         </mat-form-field>
+
+        <!-- Mensaje de carga -->
+        <div *ngIf="loading()" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Cargando materias disponibles...</p>
+        </div>
+
+        <!-- Mensaje cuando no hay materias después de cargar -->
+        <div *ngIf="!loading() && materias().length === 0 && enrollmentForm.get('estudianteId')?.value" class="no-materias-container">
+          <mat-icon>info</mat-icon>
+          <p>No hay materias disponibles para este estudiante.</p>
+          <p><small>Esto puede deberse a que el estudiante ya está inscrito en todas las materias disponibles o hay un problema con el servidor.</small></p>
+        </div>
 
         <!-- Resumen de selección -->
         <div *ngIf="selectedMaterias().length > 0" class="selection-summary">
