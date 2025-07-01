@@ -97,7 +97,7 @@ export interface InfoCompaneros {
   }[];
 }
 
-// Interfaz que coincide con la estructura real del API
+
 export interface ResumenInscripcionAPI {
   estudianteId: number;
   totalMaterias: number;

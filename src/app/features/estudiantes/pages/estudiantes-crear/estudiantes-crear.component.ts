@@ -86,7 +86,7 @@ export class EstudiantesCrearComponent {
       this.estudianteService.createEstudiante(estudianteData).subscribe({
         next: (response) => {
           console.log('API Response:', response);
-          // El WebAPI devuelve directamente el objeto EstudianteDto, no un wrapper ApiResponse
+          
           if (response && response.id) {
             this.snackBar.open('Estudiante creado exitosamente', 'Cerrar', {
               duration: 3000,

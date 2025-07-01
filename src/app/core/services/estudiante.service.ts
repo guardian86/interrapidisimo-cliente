@@ -27,12 +27,12 @@ export class EstudianteService {
     
     return this.http.get<EstudianteListDto[]>(API_ENDPOINTS.ESTUDIANTES).pipe(
       tap(estudiantes => {
-        console.log('✅ EstudianteService: Estudiantes recibidos:', estudiantes);
-        console.log('📊 EstudianteService: Cantidad de estudiantes:', estudiantes.length);
+        console.log('EstudianteService: Estudiantes recibidos:', estudiantes);
+        console.log('EstudianteService: Cantidad de estudiantes:', estudiantes.length);
       }),
       catchError(error => {
-        console.error('❌ EstudianteService: Error al obtener estudiantes:', error);
-        console.error('🔍 Detalles del error:', {
+        console.error('EstudianteService: Error al obtener estudiantes:', error);
+        console.error('Detalles del error:', {
           status: error.status,
           statusText: error.statusText,
           url: error.url,

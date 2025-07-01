@@ -66,7 +66,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEstudiantes();
-    // Las materias se cargarán cuando se seleccione un estudiante
+    
   }
 
   onEstudianteSelectionChange(estudianteId: number): void {
@@ -100,7 +100,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
 
   loadMateriasDisponiblesParaEstudiante(estudianteId: number): void {
     this.loading.set(true);
-    console.log('🔍 Cargando materias disponibles para estudiante:', estudianteId);
+    
     
     this.materiaService.getMateriasDisponiblesParaEstudiante(estudianteId).subscribe({
       next: (materiasDisponibles: MateriasDisponiblesParaEstudianteDto[]) => {
@@ -112,7 +112,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
         );
         
         if (materiasValidas.length !== materiasDisponibles.length) {
-          console.warn('⚠️ Algunas materias fueron filtradas por datos inválidos');
+          console.warn('Algunas materias fueron filtradas por datos inválidos');
         }
         
         // Validar que cada materia tenga al menos un profesor disponible
@@ -121,7 +121,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
         );
         
         if (materiasConProfesores.length !== materiasValidas.length) {
-          console.warn(`⚠️ ${materiasValidas.length - materiasConProfesores.length} materia(s) sin profesores disponibles fueron excluidas`);
+          console.warn(`${materiasValidas.length - materiasConProfesores.length} materia(s) sin profesores disponibles fueron excluidas`);
         }
         
         console.log('Materias válidas con profesores:', materiasConProfesores);
@@ -220,14 +220,12 @@ export class EstudiantesInscripcionComponent implements OnInit {
   }
 
   validateProfesores(selectedMaterias: MateriasDisponiblesParaEstudianteDto[]): void {
-    // Lógica de validación de profesores se maneja en el backend
-    // Por ahora solo guardamos la selección
     console.log('Materias seleccionadas:', selectedMaterias);
   }
 
   onSubmit(): void {
     if (this.enrollmentForm.valid) {
-      // Verificar que todas las materias tengan profesor asignado
+      // verificar que todas las materias tengan profesor asignado
       const materiasSeleccionadas = this.selectedMaterias();
       const profesoresSeleccionados = this.profesoresSeleccionados();
       
@@ -253,14 +251,14 @@ export class EstudiantesInscripcionComponent implements OnInit {
       this.loading.set(true);
       const formValue = this.enrollmentForm.value;
       
-      // Validar que el estudiante ID sea válido
+      // validar que el estudiante ID sea válido
       if (!formValue.estudianteId || formValue.estudianteId <= 0) {
-        console.error('❌ ID de estudiante inválido:', formValue.estudianteId);
+        console.error('ID de estudiante inválido:', formValue.estudianteId);
         this.handleInscripcionError('ID de estudiante inválido');
         return;
       }
       
-      // Crear las inscripciones con materia y profesor
+      // crear las inscripciones con materia y profesor
       const inscripciones: InscripcionCreateDto[] = materiasSeleccionadas.map(materia => {
         const profesorSeleccionado = profesoresSeleccionados[materia.materiaId];
         
@@ -277,7 +275,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
 
       console.log('📤 Inscripciones validadas, listas para enviar:', inscripciones);
 
-      // Procesar inscripciones una por una
+      // procesar inscripciones una por una
       this.processInscripciones(inscripciones, 0);
     } else {
       console.warn('⚠️ Formulario inválido');
@@ -295,7 +293,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
         panelClass: ['success-snackbar']
       });
       
-      // Resetear el formulario después del éxito
+      // resetear el formulario después del éxito
       this.enrollmentForm.reset();
       this.selectedMaterias.set([]);
       this.profesoresSeleccionados.set({});
@@ -312,7 +310,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
       next: (response: InscripcionResponseDto) => {
         console.log('Respuesta de inscripción:', response);
         if (response.exitoso) {
-          // Continuar con la siguiente inscripción
+          
           this.processInscripciones(inscripciones, index + 1);
         } else {
           const mensaje = response.mensaje || 'Error en la inscripción';
@@ -323,7 +321,7 @@ export class EstudiantesInscripcionComponent implements OnInit {
         console.error('Error en inscripción:', error);
         let errorMessage = 'Error al realizar la inscripción';
         
-        // Manejar diferentes tipos de error
+        //  diferentes tipos de error
         if (error.error && error.error.message) {
           errorMessage = error.error.message;
         } else if (error.message) {

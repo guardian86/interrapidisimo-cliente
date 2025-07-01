@@ -89,7 +89,7 @@ export class InscripcionWizardComponent implements OnInit {
   ngOnInit(): void {
     this.loadEstudiantes();
     
-    // Escuchar cambios en la selección de estudiante
+    // escuchar cambios en la selección de estudiante
     this.estudianteForm.get('estudianteId')?.valueChanges.subscribe(estudianteId => {
       if (estudianteId) {
         this.estudianteSeleccionado.set(estudianteId);
@@ -145,7 +145,7 @@ export class InscripcionWizardComponent implements OnInit {
     const inscripcionesActuales = this.inscripcionesSeleccionadas();
     
     if (checked) {
-      // Validar límite de materias
+      // validar límite de materias
       if (inscripcionesActuales.length >= this.MAX_MATERIAS) {
         this.snackBar.open(`Solo puedes seleccionar máximo ${this.MAX_MATERIAS} materias`, 'Cerrar', {
           duration: 3000,
@@ -154,7 +154,7 @@ export class InscripcionWizardComponent implements OnInit {
         return;
       }
       
-      // Validar límite de créditos
+      // validar límite de créditos
       const nuevosCreditos = this.creditosActuales() + materia.creditosMateria;
       if (nuevosCreditos > this.MAX_CREDITOS) {
         this.snackBar.open(`Excederías el límite de ${this.MAX_CREDITOS} créditos`, 'Cerrar', {
@@ -164,7 +164,7 @@ export class InscripcionWizardComponent implements OnInit {
         return;
       }
       
-      // Validar profesor único
+      // validar profesor único
       if (this.profesoresSeleccionados().has(profesorId)) {
         const profesor = materia.profesoresDisponibles.find(p => p.profesorId === profesorId);
         const profesorNombre = profesor ? profesor.nombreCompleto : 'este profesor';
@@ -175,7 +175,7 @@ export class InscripcionWizardComponent implements OnInit {
         return;
       }
       
-      // Agregar inscripción
+      // agregar inscripción
       this.inscripcionesSeleccionadas.set([...inscripcionesActuales, { materia, profesorId }]);
       this.creditosActuales.set(nuevosCreditos);
       
@@ -183,7 +183,7 @@ export class InscripcionWizardComponent implements OnInit {
       profesores.add(profesorId);
       this.profesoresSeleccionados.set(profesores);
     } else {
-      // Remover inscripción
+      // remover inscripción
       const nuevasInscripciones = inscripcionesActuales.filter(i => 
         !(i.materia.materiaId === materia.materiaId && i.profesorId === profesorId)
       );
@@ -195,7 +195,7 @@ export class InscripcionWizardComponent implements OnInit {
       this.profesoresSeleccionados.set(profesores);
     }
     
-    // Actualizar form
+    // actualizar form
     this.materiasForm.patchValue({
       materias: this.inscripcionesSeleccionadas().map(i => ({ 
         materiaId: i.materia.materiaId, 
@@ -266,8 +266,7 @@ export class InscripcionWizardComponent implements OnInit {
 
     this.inscribiendo.set(true);
     
-    // El WebAPI espera inscripciones individuales, no en lote
-    // Procesaremos cada inscripción una por una
+
     const estudianteId = this.estudianteForm.value.estudianteId;
     const inscripciones = this.inscripcionesSeleccionadas();
     
@@ -276,7 +275,7 @@ export class InscripcionWizardComponent implements OnInit {
 
   private procesarInscripciones(estudianteId: number, inscripciones: any[], index: number): void {
     if (index >= inscripciones.length) {
-      // Todas las inscripciones completadas
+      // todas las inscripciones completadas
       this.inscribiendo.set(false);
       this.snackBar.open('Todas las inscripciones fueron procesadas exitosamente', 'Cerrar', {
         duration: 3000,
@@ -297,7 +296,7 @@ export class InscripcionWizardComponent implements OnInit {
       next: (response: InscripcionResponseDto) => {
         console.log('Respuesta de inscripción:', response);
         if (response && response.exitoso) {
-          // Procesar siguiente inscripción
+          // procesar siguiente inscripción
           this.procesarInscripciones(estudianteId, inscripciones, index + 1);
         } else {
           this.snackBar.open(`Error en inscripción ${index + 1}: ${response?.mensaje || 'Error desconocido'}`, 'Cerrar', {

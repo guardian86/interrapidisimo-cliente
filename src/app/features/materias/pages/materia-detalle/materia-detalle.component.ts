@@ -104,20 +104,20 @@ export class MateriaDetalleComponent implements OnInit {
     //   }
     // });
     
-    // Simular datos vacíos por ahora
+    // simular datos vacíos por ahora
     this.estudiantesInscritos.set([]);
     this.loadingEstudiantes.set(false);
   }
 
   getProfesorNombre(): string {
     const materia = this.materia();
-    // Temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
+    // temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
     return 'Profesores disponibles ver en detalle';
   }
 
   getProfesorEspecializacion(): string {
     const materia = this.materia();
-    // Temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
+    // temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
     return 'Ver especialidades en lista de profesores';
   }
 

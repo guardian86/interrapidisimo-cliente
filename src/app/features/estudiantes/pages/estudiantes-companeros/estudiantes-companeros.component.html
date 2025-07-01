@@ -43,10 +43,10 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Tabs para diferentes vistas -->
+    <!-- tabs para diferentes vistas -->
     <mat-tab-group class="tabs-container">
       
-      <!-- Tab 1: Por Materia -->
+      <!-- tab 1: Por Materia -->
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon>class</mat-icon>
@@ -95,7 +95,7 @@
         </div>
       </mat-tab>
 
-      <!-- Tab 2: Todos los Compañeros -->
+      <!-- tab 2: todos los compañeros -->
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon>people_alt</mat-icon>
@@ -145,7 +145,7 @@
         </div>
       </mat-tab>
 
-      <!-- Tab 3: Mis Inscripciones -->
+      <!-- tab 3: mis inscripciones -->
       <mat-tab label="Mis Inscripciones">
         <div class="tab-content">
           <mat-card *ngIf="resumenInscripcion()?.materias && resumenInscripcion()!.materias.length > 0" class="enrollments-card">

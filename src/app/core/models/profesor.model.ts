@@ -1,6 +1,4 @@
-// DTOs basados en el esquema exacto del WebAPI
-
-// ProfesorDto del WebAPI
+// ProfesorDto 
 export interface ProfesorDto {
   id: number;
   nombre: string;
@@ -12,7 +10,7 @@ export interface ProfesorDto {
   materiasQueDicta: MateriaQueDict[];
 }
 
-// ProfesorListDto del WebAPI
+// ProfesorListDto 
 export interface ProfesorListDto {
   id: number;
   nombreCompleto: string;
@@ -21,7 +19,7 @@ export interface ProfesorListDto {
   isActive: boolean;
 }
 
-// ProfesorDisponibleDto del WebAPI (usado en selección de materias)
+// ProfesorDisponibleDto  (usado en selección de materias)
 export interface ProfesorDisponibleDto {
   profesorId: number;
   nombreCompleto: string;
@@ -36,7 +34,7 @@ export interface MateriaQueDict {
   creditos: number;
 }
 
-// ProfesorCreateDto del WebAPI
+// ProfesorCreateDto 
 export interface ProfesorCreateDto {
   nombre: string;
   apellido: string;
@@ -45,7 +43,7 @@ export interface ProfesorCreateDto {
   especialidad: string;
 }
 
-// ProfesorUpdateDto del WebAPI
+// ProfesorUpdateDto 
 export interface ProfesorUpdateDto {
   nombre: string;
   apellido: string;

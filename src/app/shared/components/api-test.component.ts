@@ -37,32 +37,32 @@ export class ApiTestComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    console.log('🧪 ApiTestComponent: Componente de prueba iniciado');
+    console.log('ApiTestComponent: Componente de prueba iniciado');
   }
 
   testApi() {
-    console.log('🧪 ApiTestComponent: Probando API con interceptor...');
+    console.log('ApiTestComponent: Probando API con interceptor...');
     this.http.get('/Estudiantes').subscribe({
       next: (data) => {
-        console.log('✅ ApiTestComponent: Datos recibidos:', data);
+        console.log('ApiTestComponent: Datos recibidos:', data);
         this.results = { interceptor: data };
       },
       error: (error) => {
-        console.error('❌ ApiTestComponent: Error con interceptor:', error);
+        console.error('ApiTestComponent: Error con interceptor:', error);
         this.errors = { interceptor: error };
       }
     });
   }
 
   testDirectUrl() {
-    console.log('🧪 ApiTestComponent: Probando URL directa...');
+    console.log('ApiTestComponent: Probando URL directa...');
     this.http.get('http://localhost:5099/api/Estudiantes').subscribe({
       next: (data) => {
-        console.log('✅ ApiTestComponent: Datos recibidos (URL directa):', data);
+        console.log('ApiTestComponent: Datos recibidos (URL directa):', data);
         this.results = { ...this.results, direct: data };
       },
       error: (error) => {
-        console.error('❌ ApiTestComponent: Error con URL directa:', error);
+        console.error('ApiTestComponent: Error con URL directa:', error);
         this.errors = { ...this.errors, direct: error };
       }
     });

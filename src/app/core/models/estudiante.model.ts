@@ -1,6 +1,6 @@
-// DTOs basados en el esquema exacto del WebAPI
+// DTOs basados en el esquema exacto 
 
-// EstudianteDto del WebAPI
+// EstudianteDto 
 export interface EstudianteDto {
   id: number;
   nombre: string;
@@ -14,7 +14,7 @@ export interface EstudianteDto {
   materiasInscritas: MateriaInscritaDto[];
 }
 
-// EstudianteListDto del WebAPI
+// EstudianteListDto 
 export interface EstudianteListDto {
   id: number;
   nombreCompleto: string;
@@ -23,13 +23,13 @@ export interface EstudianteListDto {
   isActive: boolean;
 }
 
-// EstudianteCompaneroDto del WebAPI
+// EstudianteCompaneroDto 
 export interface EstudianteCompaneroDto {
   id: number;
   nombreCompleto: string;
 }
 
-// MateriaInscritaDto del WebAPI
+// MateriaInscritaDto 
 export interface MateriaInscritaDto {
   materiaId: number;
   nombreMateria: string;
@@ -42,7 +42,7 @@ export interface MateriaInscritaDto {
   companerosDeClase: EstudianteCompaneroDto[];
 }
 
-// EstudianteCreateDto del WebAPI
+// EstudianteCreateDto 
 export interface EstudianteCreateDto {
   nombre: string;
   apellido: string;
@@ -52,7 +52,7 @@ export interface EstudianteCreateDto {
   documento: string;
 }
 
-// EstudianteUpdateDto del WebAPI
+// EstudianteUpdateDto 
 export interface EstudianteUpdateDto {
   nombre: string;
   apellido: string;

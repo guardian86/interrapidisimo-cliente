@@ -80,7 +80,7 @@ export class MateriasListaComponent implements OnInit {
   }
 
   getProfesorNombre(materia: MateriaListDto): string {
-    // Temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
+    // temporalmente retornando valor por defecto - el modelo no tiene profesor embebido
     return 'Ver profesores disponibles';
   }
 
