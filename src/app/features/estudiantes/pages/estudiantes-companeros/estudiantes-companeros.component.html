@@ -53,26 +53,26 @@
           Compañeros por Materia
         </ng-template>
         <div class="tab-content">
-          <div class="expansion-panels" *ngIf="resumenInscripcion()?.companeros && resumenInscripcion()!.companeros.length > 0">
-            <mat-expansion-panel *ngFor="let materiaInfo of resumenInscripcion()!.companeros" class="materia-panel">
+          <div class="expansion-panels" *ngIf="materiasConCompaneros() && materiasConCompaneros().length > 0">
+            <mat-expansion-panel *ngFor="let materia of materiasConCompaneros()" class="materia-panel">
               <mat-expansion-panel-header>
                 <mat-panel-title>
                   <mat-icon>book</mat-icon>
-                  {{ materiaInfo.nombreMateria }}
+                  {{ materia.nombreMateria }}
                 </mat-panel-title>
                 <mat-panel-description>
-                  Prof. {{ materiaInfo.nombreProfesor }} • 
-                  {{ materiaInfo.companeros.length }} compañero(s)
+                  Prof. {{ materia.nombreProfesor }} • 
+                  {{ materia.companeros?.length || 0 }} compañero(s)
                 </mat-panel-description>
               </mat-expansion-panel-header>
 
               <div class="panel-content">
-                <div *ngIf="materiaInfo.companeros.length > 0; else noClassmates" class="classmates-list">
+                <div *ngIf="materia.companeros && materia.companeros.length > 0; else noClassmates" class="classmates-list">
                   <mat-list dense>
-                    <mat-list-item *ngFor="let companero of materiaInfo.companeros">
+                    <mat-list-item *ngFor="let companero of materia.companeros">
                       <mat-icon matListIcon>person</mat-icon>
-                      <div matLine>{{ companero.nombreEstudiante }}</div>
-                      <div matLine class="secondary-text">ID: {{ companero.estudianteId }}</div>
+                      <div matLine>{{ companero.nombreCompleto || ('Estudiante ' + companero.id) }}</div>
+                      <div matLine class="secondary-text">ID: {{ companero.id }}</div>
                     </mat-list-item>
                   </mat-list>
                 </div>
@@ -87,7 +87,7 @@
             </mat-expansion-panel>
           </div>
 
-          <div *ngIf="!resumenInscripcion()?.companeros?.length" class="no-data">
+          <div *ngIf="!materiasConCompaneros()?.length" class="no-data">
             <mat-icon>school_off</mat-icon>
             <h3>Sin inscripciones</h3>
             <p>Este estudiante no tiene materias inscritas actualmente.</p>

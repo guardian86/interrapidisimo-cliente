@@ -6,7 +6,8 @@ import {
   InscripcionResponseDto,
   MateriasDisponiblesParaEstudianteDto,
   ProfesorDisponibleDto,
-  ResumenInscripcionEstudiante
+  ResumenInscripcionEstudiante,
+  ResumenInscripcionAPI
 } from '../models/inscripcion.model';
 import { API_ENDPOINTS } from '../settings/app.config';
 
@@ -54,9 +55,23 @@ export class InscripcionService {
   }
 
   /**
-   * Obtiene el resumen de inscripciones de un estudiante
+   * Obtiene el resumen de inscripciones de un estudiante (estructura real del API)
+   */
+  getResumenInscripcionAPI(estudianteId: number): Observable<ResumenInscripcionAPI> {
+    return this.http.get<ResumenInscripcionAPI>(`${API_ENDPOINTS.INSCRIPCIONES_RESUMEN}/${estudianteId}`);
+  }
+
+  /**
+   * Obtiene el resumen de inscripciones de un estudiante (mantener compatibilidad)
    */
   getResumenInscripcion(estudianteId: number): Observable<ResumenInscripcionEstudiante> {
     return this.http.get<ResumenInscripcionEstudiante>(`${API_ENDPOINTS.INSCRIPCIONES_RESUMEN}/${estudianteId}`);
+  }
+
+  /**
+   * Obtiene los compañeros de clase de un estudiante en una materia específica
+   */
+  getCompanerosByMateria(estudianteId: number, materiaId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${API_ENDPOINTS.ESTUDIANTES}/${estudianteId}/companeros/materia/${materiaId}`);
   }
 }

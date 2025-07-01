@@ -13,7 +13,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { InscripcionService } from '../../../../core/services/inscripcion.service';
 import { EstudianteService } from '../../../../core/services/estudiante.service';
 import { EstudianteDto, EstudianteListDto } from '../../../../core/models/estudiante.model';
-import { ResumenInscripcionEstudiante } from '../../../../core/models/inscripcion.model';
+import { ResumenInscripcionAPI } from '../../../../core/models/inscripcion.model';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-estudiantes-companeros',
@@ -35,7 +37,8 @@ import { ResumenInscripcionEstudiante } from '../../../../core/models/inscripcio
 })
 export class EstudiantesCompanerosComponent implements OnInit {
   estudiante = signal<EstudianteDto | null>(null);
-  resumenInscripcion = signal<ResumenInscripcionEstudiante | null>(null);
+  resumenInscripcion = signal<ResumenInscripcionAPI | null>(null);
+  materiasConCompaneros = signal<any[]>([]);
   todosLosEstudiantes = signal<EstudianteListDto[]>([]);
   loading = signal(false);
   estudianteId: number = 0;
@@ -52,19 +55,25 @@ export class EstudiantesCompanerosComponent implements OnInit {
       this.estudianteId = +params['id'];
       if (this.estudianteId) {
         this.loadEstudianteData();
-        this.loadResumenInscripcion();
+        this.loadResumenInscripcionConCompaneros();
         this.loadTodosLosEstudiantes();
       }
     });
   }
 
-  loadResumenInscripcion(): void {
+  loadResumenInscripcionConCompaneros(): void {
     this.loading.set(true);
     
-    this.inscripcionService.getResumenInscripcion(this.estudianteId).subscribe({
-      next: (resumen: ResumenInscripcionEstudiante) => {
+    this.inscripcionService.getResumenInscripcionAPI(this.estudianteId).subscribe({
+      next: (resumen: ResumenInscripcionAPI) => {
         this.resumenInscripcion.set(resumen);
-        this.loading.set(false);
+        
+        // Cargar compañeros para cada materia usando el endpoint individual
+        if (resumen.materias && resumen.materias.length > 0) {
+          this.loadCompanerosParaTodasLasMaterias(resumen.materias);
+        } else {
+          this.loading.set(false);
+        }
       },
       error: (error: any) => {
         console.error('Error loading enrollment summary:', error);
@@ -74,6 +83,35 @@ export class EstudiantesCompanerosComponent implements OnInit {
           verticalPosition: 'bottom',
           panelClass: ['error-snackbar']
         });
+        this.loading.set(false);
+      }
+    });
+  }
+
+  loadCompanerosParaTodasLasMaterias(materias: any[]): void {
+    const companerRequests = materias.map(materia => 
+      this.inscripcionService.getCompanerosByMateria(this.estudianteId, materia.materiaId).pipe(
+        map(companeros => ({
+          ...materia,
+          companeros: companeros.filter(c => c.id !== this.estudianteId) // Excluir al estudiante actual
+        })),
+        catchError(error => {
+          console.error(`Error loading companions for materia ${materia.materiaId}:`, error);
+          return of({
+            ...materia,
+            companeros: []
+          });
+        })
+      )
+    );
+
+    forkJoin(companerRequests).subscribe({
+      next: (materiasConCompaneros) => {
+        this.materiasConCompaneros.set(materiasConCompaneros);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading companions:', error);
         this.loading.set(false);
       }
     });
@@ -125,7 +163,7 @@ export class EstudiantesCompanerosComponent implements OnInit {
   }
 
   getTotalMaterias(): number {
-    return this.resumenInscripcion()?.inscripciones?.length || 0;
+    return this.resumenInscripcion()?.totalMaterias || 0;
   }
 
   getTotalCreditos(): number {
@@ -133,52 +171,67 @@ export class EstudiantesCompanerosComponent implements OnInit {
   }
 
   getTotalCompaneros(): number {
-    const resumen = this.resumenInscripcion();
-    if (!resumen?.companeros) return 0;
+    const materias = this.materiasConCompaneros();
+    if (!materias) return 0;
     
-    return resumen.companeros.reduce((total, materiaInfo) => 
-      total + materiaInfo.companeros.length, 0
+    return materias.reduce((total: number, materia: any) => 
+      total + (materia.companeros?.length || 0), 0
     );
   }
 
   getUniqueCompaneros(): any[] {
-    const resumen = this.resumenInscripcion();
-    if (!resumen?.companeros) return [];
+    const materias = this.materiasConCompaneros();
+    if (!materias || materias.length === 0) return [];
     
     const companerosMap = new Map<number, any>();
     
-    resumen.companeros.forEach(materiaInfo => {
-      materiaInfo.companeros.forEach(companero => {
-        if (!companerosMap.has(companero.estudianteId)) {
-          companerosMap.set(companero.estudianteId, {
-            estudianteId: companero.estudianteId,
-            nombreEstudiante: companero.nombreEstudiante,
-            materias: [materiaInfo.nombreMateria]
-          });
-        } else {
-          companerosMap.get(companero.estudianteId)?.materias.push(materiaInfo.nombreMateria);
-        }
-      });
+    materias.forEach((materia: any) => {
+      if (materia.companeros && materia.companeros.length > 0) {
+        materia.companeros.forEach((companero: any) => {
+          if (!companerosMap.has(companero.id)) {
+            companerosMap.set(companero.id, {
+              estudianteId: companero.id,
+              nombreEstudiante: companero.nombreCompleto || `Estudiante ${companero.id}`,
+              materias: [materia.nombreMateria]
+            });
+          } else {
+            const existing = companerosMap.get(companero.id);
+            if (existing && !existing.materias.includes(materia.nombreMateria)) {
+              existing.materias.push(materia.nombreMateria);
+            }
+          }
+        });
+      }
     });
     
     return Array.from(companerosMap.values());
   }
 
   getSharedSubjects(companeroId: number): string[] {
-    const resumen = this.resumenInscripcion();
-    if (!resumen?.companeros) return [];
+    const materias = this.materiasConCompaneros();
+    if (!materias || materias.length === 0) return [];
     
     const sharedSubjects: string[] = [];
     
-    resumen.companeros.forEach(materiaInfo => {
-      const isInThisSubject = materiaInfo.companeros.some(
-        companero => companero.estudianteId === companeroId
-      );
-      if (isInThisSubject) {
-        sharedSubjects.push(materiaInfo.nombreMateria);
+    materias.forEach((materia: any) => {
+      if (materia.companeros && materia.companeros.length > 0) {
+        const isInThisSubject = materia.companeros.some(
+          (companero: any) => companero.id === companeroId
+        );
+        if (isInThisSubject) {
+          sharedSubjects.push(materia.nombreMateria);
+        }
       }
     });
     
     return sharedSubjects;
+  }
+
+  getMateriaCompaneros(materiaId: number): any[] {
+    const materias = this.materiasConCompaneros();
+    if (!materias) return [];
+    
+    const materia = materias.find((m: any) => m.materiaId === materiaId);
+    return materia?.companeros || [];
   }
 }

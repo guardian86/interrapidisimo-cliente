@@ -97,6 +97,27 @@ export interface InfoCompaneros {
   }[];
 }
 
+// Interfaz que coincide con la estructura real del API
+export interface ResumenInscripcionAPI {
+  estudianteId: number;
+  totalMaterias: number;
+  totalCreditos: number;
+  materias: {
+    materiaId: number;
+    nombreMateria: string;
+    codigoMateria: string;
+    creditos: number;
+    profesorId: number;
+    nombreProfesor: string;
+    fechaInscripcion: string;
+    estado: string;
+    companerosDeClase: {
+      id: number;
+      nombreCompleto: string;
+    }[];
+  }[];
+}
+
 export interface ValidacionInscripcion extends ValidacionInscripcionDto {
   errores: string[];
   creditosActuales: number;
