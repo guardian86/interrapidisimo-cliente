@@ -148,7 +148,7 @@
       <!-- Tab 3: Mis Inscripciones -->
       <mat-tab label="Mis Inscripciones">
         <div class="tab-content">
-          <mat-card *ngIf="resumenInscripcion()?.inscripciones && resumenInscripcion()!.inscripciones.length > 0" class="enrollments-card">
+          <mat-card *ngIf="resumenInscripcion()?.materias && resumenInscripcion()!.materias.length > 0" class="enrollments-card">
             <mat-card-header>
               <mat-card-title>
                 <mat-icon>assignment</mat-icon>
@@ -158,17 +158,22 @@
             
             <mat-card-content>
               <div class="enrollments-list">
-                <mat-card *ngFor="let inscripcion of resumenInscripcion()?.inscripciones" class="enrollment-card" elevation="1">
+                <mat-card *ngFor="let materia of resumenInscripcion()?.materias" class="enrollment-card" elevation="1">
                   <mat-card-content>
                     <div class="enrollment-header">
-                      <h3>{{ inscripcion.nombreMateria }}</h3>
-                      <mat-chip color="primary" selected>{{ inscripcion.creditos }} créditos</mat-chip>
+                      <h3>{{ materia.nombreMateria }}</h3>
+                      <mat-chip color="primary" selected>{{ materia.creditos }} créditos</mat-chip>
                     </div>
                     
                     <div class="enrollment-details">
-                      <p><strong>Código:</strong> {{ inscripcion.codigoMateria }}</p>
-                      <p><strong>Profesor:</strong> {{ inscripcion.nombreProfesor }}</p>
-                      <p><strong>Fecha de Inscripción:</strong> {{ formatDate(inscripcion.fechaInscripcion) }}</p>
+                      <p><strong>Código:</strong> {{ materia.codigoMateria || 'Sin código' }}</p>
+                      <p><strong>Profesor:</strong> {{ materia.nombreProfesor }}</p>
+                      <p><strong>Fecha de Inscripción:</strong> {{ formatDate(materia.fechaInscripcion) }}</p>
+                      <p><strong>Estado:</strong> 
+                        <mat-chip [color]="materia.estado === 'Activo' ? 'accent' : 'warn'" selected>
+                          {{ materia.estado }}
+                        </mat-chip>
+                      </p>
                     </div>
                   </mat-card-content>
                 </mat-card>
@@ -176,7 +181,7 @@
             </mat-card-content>
           </mat-card>
 
-          <div *ngIf="!resumenInscripcion()?.inscripciones?.length" class="no-data">
+          <div *ngIf="!resumenInscripcion()?.materias?.length" class="no-data">
             <mat-icon>assignment_off</mat-icon>
             <h3>Sin inscripciones</h3>
             <p>Este estudiante no tiene inscripciones activas.</p>
@@ -194,7 +199,7 @@
     <mat-icon>error_outline</mat-icon>
     <h3>No se pudo cargar la información</h3>
     <p>Hubo un problema al cargar los datos del estudiante.</p>
-    <button mat-raised-button color="primary" (click)="loadResumenInscripcion()">
+    <button mat-raised-button color="primary" (click)="loadResumenInscripcionConCompaneros()">
       <mat-icon>refresh</mat-icon>
       Reintentar
     </button>
