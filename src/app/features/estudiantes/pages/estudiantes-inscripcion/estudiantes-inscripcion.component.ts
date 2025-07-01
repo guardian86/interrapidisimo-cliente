@@ -71,7 +71,6 @@ export class EstudiantesInscripcionComponent implements OnInit {
 
   onEstudianteSelectionChange(estudianteId: number): void {
     if (estudianteId) {
-      console.log('Estudiante seleccionado:', estudianteId);
       this.loadMateriasDisponiblesParaEstudiante(estudianteId);
       // Limpiar selecciones previas
       this.selectedMaterias.set([]);
@@ -84,7 +83,6 @@ export class EstudiantesInscripcionComponent implements OnInit {
     this.estudianteService.getEstudiantes().subscribe({
       next: (estudiantes: EstudianteListDto[]) => {
         this.estudiantes.set(estudiantes);
-        console.log('Estudiantes cargados:', estudiantes.length);
       },
       error: (error) => {
         console.error('Error loading students:', error);
@@ -102,46 +100,55 @@ export class EstudiantesInscripcionComponent implements OnInit {
 
   loadMateriasDisponiblesParaEstudiante(estudianteId: number): void {
     this.loading.set(true);
+    console.log('🔍 Cargando materias disponibles para estudiante:', estudianteId);
+    
     this.materiaService.getMateriasDisponiblesParaEstudiante(estudianteId).subscribe({
       next: (materiasDisponibles: MateriasDisponiblesParaEstudianteDto[]) => {
-        // Agregar un ID único temporal si materiaId es 0 y simular profesores
-        const materiasConId = materiasDisponibles.map((materia, index) => {
-          const materiaConId = {
-            ...materia,
-            materiaId: materia.materiaId || (index + 1), // Usar índice + 1 si materiaId es 0
-            tempId: index + 1, // ID temporal para tracking
-            codigoMateria: materia.codigoMateria || `MAT${String(index + 1).padStart(3, '0')}` // Código temporal
-          };
-
-          // Si no hay profesores disponibles, agregar profesores simulados
-          if (!materiaConId.profesoresDisponibles || materiaConId.profesoresDisponibles.length === 0) {
-            materiaConId.profesoresDisponibles = [
-              {
-                profesorId: (index * 10) + 1,
-                nombreCompleto: `Profesor ${materiaConId.nombreMateria} A`,
-                especialidad: materiaConId.nombreMateria
-              },
-              {
-                profesorId: (index * 10) + 2,
-                nombreCompleto: `Profesor ${materiaConId.nombreMateria} B`,
-                especialidad: `${materiaConId.nombreMateria} Avanzado`
-              }
-            ];
-          }
-
-          return materiaConId;
-        });
+        console.log('📚 Materias recibidas del API:', materiasDisponibles);
         
-        this.materias.set(materiasConId);
-        console.log('Materias disponibles para estudiante cargadas:', materiasConId.length);
-        console.log('Materias con profesores:', materiasConId);
+        // Validar que las materias tengan datos válidos
+        const materiasValidas = materiasDisponibles.filter(materia => 
+          materia.materiaId && materia.materiaId > 0 && materia.nombreMateria
+        );
+        
+        if (materiasValidas.length !== materiasDisponibles.length) {
+          console.warn('⚠️ Algunas materias fueron filtradas por datos inválidos');
+        }
+        
+        // Validar que cada materia tenga al menos un profesor disponible
+        const materiasConProfesores = materiasValidas.filter(materia => 
+          materia.profesoresDisponibles && materia.profesoresDisponibles.length > 0
+        );
+        
+        if (materiasConProfesores.length !== materiasValidas.length) {
+          console.warn(`⚠️ ${materiasValidas.length - materiasConProfesores.length} materia(s) sin profesores disponibles fueron excluidas`);
+        }
+        
+        console.log('Materias válidas con profesores:', materiasConProfesores);
+        this.materias.set(materiasConProfesores);
         this.loading.set(false);
       },
       error: (error) => {
         console.error('Error loading available subjects for student:', error);
+        console.error('Error details:', {
+          status: error.status,
+          message: error.message,
+          url: error.url
+        });
+        
         this.loading.set(false);
-        this.snackBar.open('Error al cargar materias disponibles para el estudiante', 'Cerrar', {
-          duration: 3000,
+        
+        let errorMessage = 'Error al cargar materias disponibles para el estudiante';
+        if (error.status === 0) {
+          errorMessage = 'No se puede conectar al servidor. Verifique que el API esté ejecutándose.';
+        } else if (error.status === 404) {
+          errorMessage = 'Estudiante no encontrado o endpoint no disponible.';
+        } else if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        }
+        
+        this.snackBar.open(errorMessage, 'Cerrar', {
+          duration: 5000,
           horizontalPosition: 'right',
           verticalPosition: 'bottom',
           panelClass: ['error-snackbar']
@@ -224,11 +231,16 @@ export class EstudiantesInscripcionComponent implements OnInit {
       const materiasSeleccionadas = this.selectedMaterias();
       const profesoresSeleccionados = this.profesoresSeleccionados();
       
+      console.log('📋 Validando datos de inscripción...');
+      console.log('📚 Materias seleccionadas:', materiasSeleccionadas);
+      console.log('👨‍🏫 Profesores seleccionados:', profesoresSeleccionados);
+      
       const materiasSinProfesor = materiasSeleccionadas.filter(
         materia => !profesoresSeleccionados[materia.materiaId]
       );
       
       if (materiasSinProfesor.length > 0) {
+        console.warn('⚠️ Hay materias sin profesor asignado:', materiasSinProfesor);
         this.snackBar.open('Debe seleccionar un profesor para cada materia', 'Cerrar', {
           duration: 4000,
           horizontalPosition: 'right',
@@ -241,33 +253,34 @@ export class EstudiantesInscripcionComponent implements OnInit {
       this.loading.set(true);
       const formValue = this.enrollmentForm.value;
       
-      // Crear las inscripciones con materia y profesor
-      const inscripciones: InscripcionCreateDto[] = materiasSeleccionadas.map(materia => ({
-        estudianteId: formValue.estudianteId,
-        materiaId: materia.materiaId,
-        profesorId: profesoresSeleccionados[materia.materiaId]!.profesorId
-      }));
-
-      console.log('Inscripciones a procesar:', inscripciones);
-
-      // Por ahora mostrar éxito ya que el backend tiene problemas con los IDs
-      this.loading.set(false);
-      this.snackBar.open(`¡Inscripciones simuladas exitosamente! ${inscripciones.length} materia(s) inscritas.`, 'Cerrar', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'bottom',
-        panelClass: ['success-snackbar']
-      });
+      // Validar que el estudiante ID sea válido
+      if (!formValue.estudianteId || formValue.estudianteId <= 0) {
+        console.error('❌ ID de estudiante inválido:', formValue.estudianteId);
+        this.handleInscripcionError('ID de estudiante inválido');
+        return;
+      }
       
-      // Resetear el formulario
-      this.enrollmentForm.reset();
-      this.selectedMaterias.set([]);
-      this.profesoresSeleccionados.set({});
-      this.materias.set([]);
+      // Crear las inscripciones con materia y profesor
+      const inscripciones: InscripcionCreateDto[] = materiasSeleccionadas.map(materia => {
+        const profesorSeleccionado = profesoresSeleccionados[materia.materiaId];
+        
+        if (!profesorSeleccionado) {
+          throw new Error(`No hay profesor seleccionado para la materia ${materia.nombreMateria}`);
+        }
+        
+        return {
+          estudianteId: formValue.estudianteId,
+          materiaId: materia.materiaId,
+          profesorId: profesorSeleccionado.profesorId
+        };
+      });
 
-      // Procesar inscripciones una por una (comentado hasta que se arregle el backend)
-      // this.processInscripciones(inscripciones, 0);
+      console.log('📤 Inscripciones validadas, listas para enviar:', inscripciones);
+
+      // Procesar inscripciones una por una
+      this.processInscripciones(inscripciones, 0);
     } else {
+      console.warn('⚠️ Formulario inválido');
       this.markFormGroupTouched();
     }
   }
@@ -281,11 +294,20 @@ export class EstudiantesInscripcionComponent implements OnInit {
         verticalPosition: 'bottom',
         panelClass: ['success-snackbar']
       });
+      
+      // Resetear el formulario después del éxito
+      this.enrollmentForm.reset();
+      this.selectedMaterias.set([]);
+      this.profesoresSeleccionados.set({});
+      this.materias.set([]);
+      
       this.router.navigate(['/students']);
       return;
     }
 
     const inscripcion = inscripciones[index];
+    console.log(`Procesando inscripción ${index + 1} de ${inscripciones.length}:`, inscripcion);
+    
     this.inscripcionService.createInscripcion(inscripcion).subscribe({
       next: (response: InscripcionResponseDto) => {
         console.log('Respuesta de inscripción:', response);
@@ -299,7 +321,22 @@ export class EstudiantesInscripcionComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error en inscripción:', error);
-        this.handleInscripcionError('Error al realizar la inscripción');
+        let errorMessage = 'Error al realizar la inscripción';
+        
+        // Manejar diferentes tipos de error
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        } else if (error.status === 400) {
+          errorMessage = 'Datos de inscripción inválidos';
+        } else if (error.status === 404) {
+          errorMessage = 'Estudiante, materia o profesor no encontrado';
+        } else if (error.status === 409) {
+          errorMessage = 'Conflicto: el estudiante ya está inscrito en esta materia o con este profesor';
+        }
+        
+        this.handleInscripcionError(errorMessage);
       }
     });
   }
